@@ -5,6 +5,7 @@
 - Review fixes: bind remote `VerifiedEvidence` to the sent `RawProof`; recover KMS signature against `issuerAddress`; sign fallback `verifierSet` before returning the ticket; verifier listens on `127.0.0.1` and requires `VERIFIER_TOKEN`.
 - T1.1 checkbox reverted: client exists, live AirAccount round-trip is not yet proven.
 - Codex review: catch malformed request targets (no unauthenticated crash); reject empty `verifierSet` / unknown trust labels; map non-object JSON error bodies to `KernelError`.
+- Codex round 2: bind remote verify to `hashRawProof(RawProof)`; require `source` and `proof.reference`.
 
 Possible impact: `HttpVerifier` now requires `token`. Verifier process requires `VERIFIER_TOKEN` and defaults to loopback.
 

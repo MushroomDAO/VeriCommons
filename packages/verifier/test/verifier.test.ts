@@ -179,6 +179,51 @@ describe("independent verifier service", () => {
     }
   });
 
+  it("rejects a remote verify for a different RawProof payload", async () => {
+    const prover = createKernel({ signer: Wallet.createRandom() });
+    const proofA = await prover.prove({
+      schema: ATTRIBUTION_QUALIFIED_V1,
+      subject: "0x3333333333333333333333333333333333333333",
+      params: { channelId: "channel:alice:wechat", event: "signup", qualified: true },
+    });
+    const verifiedA = await createLocalVerifier().verify(proofA);
+    const remote = new HttpVerifier({
+      url: "http://verifier.test",
+      token: TOKEN,
+      fetchImpl: (async () =>
+        new Response(JSON.stringify(verifiedA), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        })) as typeof fetch,
+    });
+    const proofB = { ...proofA, observedAt: proofA.observedAt + 1 };
+    await expect(remote.verify(proofB)).rejects.toMatchObject({ code: "VERIFY_BIND" });
+  });
+
+  it("rejects a remote verify that omits source", async () => {
+    const hostile: Verifier = {
+      async verify(proof): Promise<VerifiedEvidence> {
+        const honest = await createLocalVerifier().verify(proof);
+        const { source: _source, ...rest } = honest;
+        return rest as VerifiedEvidence;
+      },
+    };
+    const server = createVerifierServer({ verifier: hostile, token: TOKEN });
+    const base = await listen(server);
+    try {
+      const prover = createKernel({ signer: Wallet.createRandom() });
+      const proof = await prover.prove({
+        schema: ATTRIBUTION_QUALIFIED_V1,
+        subject: "0x3333333333333333333333333333333333333333",
+        params: { channelId: "channel:alice:wechat", event: "signup", qualified: true },
+      });
+      const remote = new HttpVerifier({ url: base, token: TOKEN });
+      await expect(remote.verify(proof)).rejects.toMatchObject({ code: "VERIFY_HTTP" });
+    } finally {
+      server.close();
+    }
+  });
+
   it("maps a non-object JSON error body to KernelError", async () => {
     const remote = new HttpVerifier({
       url: "http://verifier.test",

@@ -3,6 +3,7 @@ import {
   KERNEL_BACKENDS,
   KernelError,
   TrustAssumption,
+  hashRawProof,
   type RawProof,
   type VerifiedEvidence,
   type Verifier,
@@ -12,6 +13,7 @@ export const VERIFIER_TOKEN_HEADER = "x-vericommons-token";
 
 const TRUST_VALUES = new Set<string>(Object.values(TrustAssumption));
 const BACKEND_VALUES = new Set<string>(KERNEL_BACKENDS);
+const SOURCE_TYPES = new Set(["https", "onchain", "issuer"]);
 
 export interface HttpVerifierOptions {
   /** Origin of the verifier process, e.g. http://127.0.0.1:8787 */
@@ -109,6 +111,22 @@ export function bindVerifiedEvidence(parsed: unknown, proof: RawProof): Verified
   }
   if (typeof proofOut.type !== "string" || proofOut.type.length === 0) {
     throw new KernelError("VERIFY_HTTP", "verified.proof.type is missing");
+  }
+  if (typeof proofOut.rawProofHash !== "string" || proofOut.rawProofHash !== hashRawProof(proof)) {
+    throw new KernelError("VERIFY_BIND", "verified.proof.rawProofHash does not match the sent RawProof");
+  }
+  if (typeof proofOut.reference !== "string" || proofOut.reference.length === 0) {
+    throw new KernelError("VERIFY_HTTP", "verified.proof.reference is missing");
+  }
+  if (typeof raw.source !== "object" || raw.source === null) {
+    throw new KernelError("VERIFY_HTTP", "verified.source is missing");
+  }
+  const source = raw.source as Record<string, unknown>;
+  if (typeof source.origin !== "string" || source.origin.length === 0) {
+    throw new KernelError("VERIFY_HTTP", "verified.source.origin is missing");
+  }
+  if (typeof source.type !== "string" || !SOURCE_TYPES.has(source.type)) {
+    throw new KernelError("VERIFY_HTTP", "verified.source.type is not a known source");
   }
   if (typeof raw.issuedAt !== "number" || typeof raw.validUntil !== "number") {
     throw new KernelError("VERIFY_HTTP", "verified timestamps are missing");
