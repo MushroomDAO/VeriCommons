@@ -1,6 +1,7 @@
 import { keccak256, toUtf8Bytes, type Signer } from "ethers";
 import { AttributionBackend } from "./backends/attribution.js";
 import { GithubApiBackend, type FetchLike } from "./backends/github-api.js";
+import { OnchainBackend } from "./backends/onchain.js";
 import { PublicWebBackend } from "./backends/public-web.js";
 import { stableStringify } from "./canonical.js";
 import { KernelError } from "./errors.js";
@@ -12,12 +13,14 @@ import type {
   IssuerClock,
   ProofBackend,
   RawProof,
+  RpcReader,
   VerifiedEvidence,
 } from "./types.js";
 
 export interface KernelOptions {
   signer: Signer;
   fetchImpl?: FetchLike;
+  rpc?: RpcReader;
   clock?: IssuerClock;
   chainId?: number;
   verifyingContract?: string;
@@ -41,6 +44,7 @@ export class Kernel {
       ["github-api", new GithubApiBackend(fetchImpl)],
       ["public-web", new PublicWebBackend(fetchImpl)],
       ["attribution", new AttributionBackend()],
+      ["onchain", new OnchainBackend(opts.rpc)],
     ]);
     this.clock = opts.clock ?? { now: () => Math.floor(Date.now() / 1000) };
   }

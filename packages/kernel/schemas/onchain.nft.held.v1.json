@@ -1,0 +1,20 @@
+{
+  "schema": "onchain.nft.held.v1",
+  "backend": "onchain",
+  "trust": "SELF",
+  "request": {
+    "subject": "0x1111111111111111111111111111111111111111",
+    "params": {
+      "chainId": 1,
+      "contract": "0x2222222222222222222222222222222222222222",
+      "tokenId": "7"
+    }
+  },
+  "claim": {
+    "chainId": 1,
+    "contract": "0x2222222222222222222222222222222222222222",
+    "tokenId": "7",
+    "owner": "0x1111111111111111111111111111111111111111",
+    "held": true
+  }
+}

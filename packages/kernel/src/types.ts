@@ -1,4 +1,4 @@
-import type { P1BackendId, TrustAssumption } from "./trust.js";
+import type { BackendId, TrustAssumption } from "./trust.js";
 
 export const EVIDENCE_VERSION = "0.1" as const;
 
@@ -18,7 +18,7 @@ export interface EvidenceRequest {
 export interface RawProof {
   schema: string;
   subject: string;
-  backend: P1BackendId;
+  backend: BackendId;
   observedAt: number;
   payload: Record<string, unknown>;
 }
@@ -39,7 +39,7 @@ export interface VerifiedEvidence {
   nonce: string;
   proof: {
     type: string;
-    backend: P1BackendId;
+    backend: BackendId;
     verifierSet: string;
     hash: string;
     reference: string;
@@ -57,14 +57,14 @@ export interface EvidenceTicket extends Omit<VerifiedEvidence, "brand"> {
 export interface SchemaDefinition {
   id: string;
   source: EvidenceSource;
-  backend: P1BackendId;
+  backend: BackendId;
   proofType: string;
   trust: TrustAssumption;
   ttlSeconds: number;
 }
 
 export interface ProofBackend {
-  readonly id: P1BackendId;
+  readonly id: BackendId;
   prove(request: EvidenceRequest): Promise<RawProof>;
   verify(proof: RawProof): Promise<{
     claim: EvidenceClaim;
@@ -75,4 +75,9 @@ export interface ProofBackend {
 
 export interface IssuerClock {
   now(): number;
+}
+
+/** Relayer / indexer read. Contracts do not fetch HTTPS. */
+export interface RpcReader {
+  ethCall(to: string, data: string): Promise<string>;
 }

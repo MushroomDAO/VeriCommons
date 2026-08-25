@@ -147,4 +147,6 @@ vendor/src/
 
 # Build
 packages/*/dist/
+packages/contracts/cache/
+packages/contracts/out/
 

@@ -4,6 +4,7 @@ import { TrustAssumption } from "./trust.js";
 export const GITHUB_REPO_STAR_V1 = "github.repo.star.v1";
 export const WEB_PUBLICATION_CHALLENGE_V1 = "web.publication.challenge.v1";
 export const ATTRIBUTION_QUALIFIED_V1 = "attribution.qualified.v1";
+export const ONCHAIN_NFT_HELD_V1 = "onchain.nft.held.v1";
 
 export const SCHEMAS: Record<string, SchemaDefinition> = {
   [GITHUB_REPO_STAR_V1]: {
@@ -29,6 +30,14 @@ export const SCHEMAS: Record<string, SchemaDefinition> = {
     proofType: "RESULT_ATTRIBUTION",
     trust: TrustAssumption.SELF,
     ttlSeconds: 30 * 24 * 60 * 60,
+  },
+  [ONCHAIN_NFT_HELD_V1]: {
+    id: ONCHAIN_NFT_HELD_V1,
+    source: { origin: "onchain", type: "onchain" },
+    backend: "onchain",
+    proofType: "ONCHAIN_STATE",
+    trust: TrustAssumption.SELF,
+    ttlSeconds: 24 * 60 * 60,
   },
 };
 
