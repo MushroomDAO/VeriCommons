@@ -12,6 +12,7 @@
 - Codex round 6: verifier result must attest `rawProofHash`; the HTTP wrapper validates it and does not overwrite a stale result.
 - Codex round 7: HttpVerifier keeps the attested hash so a proxy server can re-check it; remote backend must match `schema.backend`; KMS chain IDs above `Number.MAX_SAFE_INTEGER` are encoded as strings.
 - Codex round 8: `VerifiedEvidence.proof.rawProofHash` is required (tickets still omit it); KMS 2xx `null` bodies become `KmsError`.
+- Codex round 9: reject EIP-712 chain IDs that cannot be JSON integers; AirAccount SignTypedData does not accept quoted decimal strings.
 
 Possible impact: `HttpVerifier` now requires `token`. Verifier process requires `VERIFIER_TOKEN` and defaults to loopback.
 

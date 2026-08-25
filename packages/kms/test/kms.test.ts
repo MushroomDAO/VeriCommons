@@ -16,7 +16,7 @@ function fakeAirAccountKms(wallet: Wallet): typeof fetch {
       return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401 });
     }
     const body = JSON.parse(String(init?.body)) as {
-      domain: { name?: string; version?: string; chainId?: number | string; verifyingContract?: string };
+      domain: { name?: string; version?: string; chainId?: number; verifyingContract?: string };
       types: Array<{ name: string; fields: Array<{ name: string; type: string }> }>;
       message: Array<{ name: string; value: unknown }>;
       hdPath: string;
@@ -30,12 +30,7 @@ function fakeAirAccountKms(wallet: Wallet): typeof fetch {
     for (const field of body.message) {
       value[field.name] = field.value;
     }
-    const domain = {
-      ...body.domain,
-      chainId:
-        typeof body.domain.chainId === "string" ? BigInt(body.domain.chainId) : body.domain.chainId,
-    };
-    const signature = await wallet.signTypedData(domain, types, value);
+    const signature = await wallet.signTypedData(body.domain, types, value);
     return new Response(JSON.stringify({ keyId: body.keyId, signature }), {
       status: 200,
       headers: { "content-type": "application/json" },
@@ -69,14 +64,19 @@ describe("AirAccount KMS signer", () => {
     expect(encoded.domain.chainId).toBe(1);
   });
 
-  it("encodes a chainId above MAX_SAFE_INTEGER without rounding", () => {
-    const chainId = 2n ** 53n + 1n;
-    const encoded = toKmsTypedData(
-      { name: "VeriCommons", version: "0.1", chainId, verifyingContract: "0x0000000000000000000000000000000000000000" },
-      { Mail: [{ name: "contents", type: "string" }] },
-      { contents: "hello" },
-    );
-    expect(encoded.domain.chainId).toBe(chainId.toString());
+  it("rejects a chainId above MAX_SAFE_INTEGER before contacting KMS", () => {
+    expect(() =>
+      toKmsTypedData(
+        {
+          name: "VeriCommons",
+          version: "0.1",
+          chainId: 2n ** 53n + 1n,
+          verifyingContract: "0x0000000000000000000000000000000000000000",
+        },
+        { Mail: [{ name: "contents", type: "string" }] },
+        { contents: "hello" },
+      ),
+    ).toThrow(KmsError);
   });
 
   it("selects the EIP-712 root type when a dependency is declared first", () => {

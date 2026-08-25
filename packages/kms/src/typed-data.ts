@@ -3,7 +3,7 @@ import { KmsError } from "./errors.js";
 export interface KmsEip712Domain {
   name?: string;
   version?: string;
-  chainId?: number | string;
+  chainId?: number;
   verifyingContract?: string;
 }
 
@@ -77,21 +77,24 @@ export function toKmsTypedData(
   };
 }
 
-function encodeChainId(chainId: number | bigint | undefined): number | string | undefined {
+function encodeChainId(chainId: number | bigint | undefined): number | undefined {
   if (chainId === undefined) {
     return undefined;
   }
   if (typeof chainId === "bigint") {
-    if (chainId < 0n) {
-      throw new KmsError("TYPED_DATA", "chainId must be non-negative");
-    }
-    if (chainId > BigInt(Number.MAX_SAFE_INTEGER)) {
-      return chainId.toString();
+    if (chainId < 0n || chainId > BigInt(Number.MAX_SAFE_INTEGER)) {
+      throw new KmsError(
+        "TYPED_DATA",
+        "chainId must fit in a JSON integer for AirAccount SignTypedData",
+      );
     }
     return Number(chainId);
   }
   if (!Number.isSafeInteger(chainId) || chainId < 0) {
-    throw new KmsError("TYPED_DATA", "chainId is not a safe non-negative integer");
+    throw new KmsError(
+      "TYPED_DATA",
+      "chainId must fit in a JSON integer for AirAccount SignTypedData",
+    );
   }
   return chainId;
 }
