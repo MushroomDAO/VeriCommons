@@ -26,15 +26,15 @@ flowchart TB
 
 ## T1 — Hosted issuer (library → service)
 
-**Gap today:** this repo ships packages, not a production issue API. No KMS, no auth, no replay/rate-limit/audit. `verify()` checks the observation from this `prove()`, not a second verifier process.
+**Gap today:** hosted `prove`/`issue` API still missing auth, replay, audit. T1.1 KMS client and T1.5 process-split verifier exist; GitHub still cannot independently re-fetch (token stripped).
 
 | ID | Slice | Done when |
 | --- | --- | --- |
-| T1.1 | Issuer key in KMS/HSM (or cloud KMS). Process never sees raw key on disk. | `issue()` signs via KMS; rotate documented |
+| T1.1 | Issuer key in **AirAccount online KMS** (`https://kms.aastar.io`, `POST /kms/SignTypedData`). Process never sees raw key on disk. | `issue()` signs via `@vericommons/kms`; rotate by rotating agent JWT / keyId |
 | T1.2 | Auth gateway in front of `prove` / `issue` (m2m for plaza, user token where needed) | Unauthenticated callers cannot mint tickets |
 | T1.3 | Replay + rate limit: persist nonce, reject reuse, per-subject and per-IP caps | Duplicate `prove`/`issue` fails closed |
 | T1.4 | Audit: who requested which schema/subject, ticket hash, verify result, no secrets in logs | Can answer “who issued this nonce” |
-| T1.5 | Independent verify pass: re-fetch GitHub / page / chain (or a second worker), do not only trust `RawProof` from the prove host | Prove host ≠ sole verifier |
+| T1.5 | Independent verify **process**: `@vericommons/verifier` (`POST /verify`). Predicate still runs on `RawProof` payload (GitHub cannot re-fetch without a token). Full independent re-fetch stays open. | Prove host ≠ sole verifier process |
 
 **Exit:** one deployed issuer (staging) that plaza can call for `github.repo.star.v1` with a real token. Still **one operator**. Not DVT.
 
@@ -71,11 +71,11 @@ flowchart TB
 
 ## Checklist (do in order)
 
-- [ ] T1.1 KMS/HSM issuer
+- [x] T1.1 KMS/HSM issuer (AirAccount `POST /kms/SignTypedData`, `@vericommons/kms`)
 - [ ] T1.2 Auth gateway
 - [ ] T1.3 Replay + rate limit
 - [ ] T1.4 Audit log
-- [ ] T1.5 Independent verify worker
+- [ ] T1.5 Independent verify worker (process exists: `@vericommons/verifier`; GitHub re-fetch still open)
 - [ ] T2.1 Live credits adapter
 - [ ] T2.2 Durable task store
 - [ ] T2.3 Live 4337 validator

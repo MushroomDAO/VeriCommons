@@ -71,9 +71,9 @@ This is **designed** in the kernel split. A second credential codec is **not** s
 | Pluggable prove | Yes — backends in kernel | Vendor adapters are P4 |
 | Record who verified | `proof.verifierSet`, `trust.assumption` | Only one verifier today |
 | `verifyAll` + 2-of-3 | No | P5a–P5b |
-| Separate verifier processes | Single kernel process | Deploy N verifier workers; issuer waits on receipts |
+| Separate verifier processes | `@vericommons/verifier` HTTP worker | Still one operator until P5; GitHub payload-check not re-fetch |
 | Issuer after quorum | `issue()` exists | Must refuse unless quorum |
-| Custom issuer key | `TicketIssuer` signer | Documented; no extra package |
+| Custom issuer key | `TicketSigner` — Wallet or `@vericommons/kms` | AirAccount online KMS in T1.1 |
 | On-chain check of TLS | Must not | Validator only sees ticket — already true |
 | Verifier registry | `EvidenceRegistry` is ticket hash | Extend or add a verifier-key registry in P5 |
 

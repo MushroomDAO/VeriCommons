@@ -7,6 +7,7 @@ import {
   ATTRIBUTION_QUALIFIED_V1,
   assertTicketSignature,
   createKernel,
+  createLocalVerifier,
   GITHUB_REPO_STAR_V1,
   KernelError,
   recoverTicketIssuer,
@@ -184,5 +185,19 @@ describe("P1 kernel", () => {
     await expect(
       kernel.issue({ trust: { assumption: "SELF" } } as never),
     ).rejects.toMatchObject({ code: "NOT_VERIFIED" });
+  });
+
+  it("delegates verify() to an injected Verifier (prove and issue stay local)", async () => {
+    const kernel = createKernel({
+      signer: Wallet.createRandom(),
+      verifier: createLocalVerifier({ verifierSet: "injected-worker" }),
+    });
+    const proof = await kernel.prove({
+      schema: ATTRIBUTION_QUALIFIED_V1,
+      subject: "0x3333333333333333333333333333333333333333",
+      params: { channelId: "channel:alice:wechat", event: "signup", qualified: true },
+    });
+    const verified = await kernel.verify(proof);
+    expect(verified.proof.verifierSet).toBe("injected-worker");
   });
 });

@@ -1,5 +1,25 @@
 # Changes
 
+## 0.1.12 — 2026-08-25
+
+- T1.1: `@vericommons/kms` signs EvidenceTicket via AirAccount online KMS (`POST /kms/SignTypedData`, `x-api-key` + optional agent JWT). Kernel `TicketSigner` — no raw issuer key on disk.
+- Standard interfaces: `Prover` / `Verifier` / `Issuer`. Kernel `verify()` is injectable.
+- Independent `@vericommons/verifier` service (`GET /health`, `POST /verify`) + `HttpVerifier` client. Prove and issue stay in other processes.
+- GitHub verify still checks the `RawProof` payload (token is stripped at prove); full independent re-fetch is not this slice.
+
+Possible impact: production issuer should use `AirAccountKmsSigner` and optionally `HttpVerifier`. Local `Wallet` still works for tests. T1.2 auth gateway is next.
+
+Build / test:
+
+```bash
+pnpm install
+pnpm test
+pnpm build
+pnpm --filter @vericommons/verifier start
+```
+
+---
+
 ## 0.1.11 — 2026-08-25
 
 - Production TODO as T1–T3 layered slices: hosted issuer (KMS, auth, replay, audit, independent verify), live credits/4337 + more GitHub schemas, then P4/P5. See `docs/plan/T-production.md`.
