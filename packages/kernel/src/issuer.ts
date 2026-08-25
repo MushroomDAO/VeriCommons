@@ -1,11 +1,11 @@
-import { hexlify, randomBytes, verifyTypedData, type Signer, type TypedDataDomain } from "ethers";
+import { hexlify, randomBytes, verifyTypedData } from "ethers";
 import { hashClaim } from "./canonical.js";
-import { EVIDENCE_TICKET_TYPES, eip712Domain } from "./eip712.js";
+import { EVIDENCE_TICKET_TYPES, EIP712_NAME, EIP712_VERSION, eip712Domain } from "./eip712.js";
 import { KernelError } from "./errors.js";
-import type { EvidenceTicket, VerifiedEvidence } from "./types.js";
+import type { EvidenceTicket, Issuer, TicketSigner, VerifiedEvidence } from "./types.js";
 
 export interface IssuerOptions {
-  signer: Signer;
+  signer: TicketSigner;
   chainId?: number;
   verifyingContract?: string;
   verifierSet?: string;
@@ -13,11 +13,11 @@ export interface IssuerOptions {
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
-export class TicketIssuer {
+export class TicketIssuer implements Issuer {
   readonly chainId: number;
   readonly verifyingContract: string;
   readonly verifierSet: string;
-  private readonly signer: Signer;
+  private readonly signer: TicketSigner;
 
   constructor(opts: IssuerOptions) {
     this.signer = opts.signer;
@@ -26,7 +26,7 @@ export class TicketIssuer {
     this.verifierSet = opts.verifierSet ?? "vericommons-kernel";
   }
 
-  domain(): TypedDataDomain {
+  domain() {
     return eip712Domain(this.chainId, this.verifyingContract);
   }
 
@@ -34,38 +34,46 @@ export class TicketIssuer {
     if (verified.brand !== "VerifiedEvidence") {
       throw new KernelError("NOT_VERIFIED", "issue() only accepts VerifiedEvidence from verify()");
     }
+    const { rawProofHash: _rawProofHash, ...proof } = verified.proof;
+    const resolved = {
+      ...verified,
+      proof: {
+        ...proof,
+        verifierSet: verified.proof.verifierSet || this.verifierSet,
+      },
+    };
     const issuer = await this.signer.getAddress();
-    const value = ticketTypedValue(verified);
+    const value = ticketTypedValue(resolved);
     const signature = await this.signer.signTypedData(
-      this.domain(),
+      {
+        name: EIP712_NAME,
+        version: EIP712_VERSION,
+        chainId: this.chainId,
+        verifyingContract: this.verifyingContract,
+      },
       EVIDENCE_TICKET_TYPES,
       value,
     );
-    const { brand: _brand, ...body } = verified;
+    const { brand: _brand, ...body } = resolved;
     return {
       ...body,
-      proof: {
-        ...body.proof,
-        verifierSet: verified.proof.verifierSet || this.verifierSet,
-      },
       issuer,
       signature,
     };
   }
 }
 
-export function ticketTypedValue(ticket: Pick<
-  VerifiedEvidence,
-  | "version"
-  | "subject"
-  | "schema"
-  | "claim"
-  | "issuedAt"
-  | "validUntil"
-  | "nonce"
-  | "proof"
-  | "trust"
->) {
+export function ticketTypedValue(ticket: {
+  version: string;
+  subject: string;
+  schema: string;
+  claim: Record<string, unknown>;
+  issuedAt: number;
+  validUntil: number;
+  nonce: string;
+  proof: { backend: string; verifierSet: string };
+  trust: { assumption: string };
+}) {
   return {
     version: ticket.version,
     subject: ticket.subject,

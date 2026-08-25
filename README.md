@@ -55,7 +55,22 @@ const proof = await kernel.prove({
 const ticket = await kernel.issue(await kernel.verify(proof));
 ```
 
-Keep `ISSUER_PRIVATE_KEY` on the issuer host only.
+Keep `ISSUER_PRIVATE_KEY` on the issuer host only for local tests. Production uses AirAccount KMS:
+
+```ts
+import { createKernel } from "@vericommons/kernel";
+import { airAccountSignerFromEnv } from "@vericommons/kms";
+import { HttpVerifier } from "@vericommons/verifier";
+
+const kernel = createKernel({
+  signer: airAccountSignerFromEnv(),
+  verifier: process.env.VERIFIER_URL
+    ? new HttpVerifier({ url: process.env.VERIFIER_URL, token: process.env.VERIFIER_TOKEN! })
+    : undefined,
+});
+```
+
+Run the verifier as its own process: `pnpm --filter @vericommons/verifier start`. Env: see `.env.example`.
 
 ### 3. Plug Task Plaza (our ecosystem)
 
@@ -107,7 +122,9 @@ Three verifier operators, 2-of-3, then `issue()`: [Ecosystem](docs/Ecosystem.md)
 
 | Package | Role | Required to reuse the kernel? |
 | --- | --- | --- |
-| [`packages/kernel`](packages/kernel) | `prove` / `verify` / `issue` | **Public core** |
+| [`packages/kernel`](packages/kernel) | `prove` / `verify` / `issue` (`Prover` / `Verifier` / `Issuer`) | **Public core** |
+| [`packages/kms`](packages/kms) | AirAccount online KMS `TicketSigner` | No (tests may use a local Wallet) |
+| [`packages/verifier`](packages/verifier) | Independent HTTP `Verifier` | No (default is in-process `LocalVerifier`) |
 | [`packages/task`](packages/task) | `taskId` → PASS / FAIL / PENDING, credit hook | No |
 | [`packages/aa`](packages/aa) | Off-chain 4337 gate + EIP-1271 bind | No |
 | [`packages/contracts`](packages/contracts) | Validator, registry, subject bind | No |
@@ -121,8 +138,9 @@ Three verifier operators, 2-of-3, then `issue()`: [Ecosystem](docs/Ecosystem.md)
 | P3 | 4337 + onchain prover | stacked on P2 |
 | P4 | Vendor adapters | not started |
 | P5 | Run ≥3-node verify | not started |
+| T1–T3 | Production: hosted issuer → live ledgers → vendors/DVT | [plan](docs/plan/T-production.md) |
 
 - [Architecture](docs/Architecture.md) · [full stack](docs/architecture-full.svg)
 - [Ecosystem / DVT](docs/Ecosystem.md) · [DVT diagram](docs/architecture-dvt.svg)
-- [Milestones](docs/plan/README.md) · [Changes](docs/Changes.md)
+- [Milestones](docs/plan/README.md) · [Production TODO](docs/plan/T-production.md) · [Changes](docs/Changes.md)
 - [Solution](docs/Solution.md) (do not overwrite)

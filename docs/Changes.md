@@ -1,5 +1,51 @@
 # Changes
 
+## 0.1.13 — 2026-08-25
+
+- Review fixes: bind remote `VerifiedEvidence` to the sent `RawProof`; recover KMS signature against `issuerAddress`; sign fallback `verifierSet` before returning the ticket; verifier listens on `127.0.0.1` and requires `VERIFIER_TOKEN`.
+- T1.1 checkbox reverted: client exists, live AirAccount round-trip is not yet proven.
+- Codex review: catch malformed request targets (no unauthenticated crash); reject empty `verifierSet` / unknown trust labels; map non-object JSON error bodies to `KernelError`.
+- Codex round 2: bind remote verify to `hashRawProof(RawProof)`; require `source` and `proof.reference`.
+- Codex round 3: require schema-declared `trust.assumption`; keep `rawProofHash` on the HTTP envelope only, not on signed tickets.
+- Codex round 4: headless KMS signer requires agent JWT (no WebAuthn path).
+- Codex round 5: remote timestamps must match schema ttl and clock skew; proof.type/source must match the schema; EIP-712 primary type is the unique root, not insertion order.
+- Codex round 6: verifier result must attest `rawProofHash`; the HTTP wrapper validates it and does not overwrite a stale result.
+- Codex round 7: HttpVerifier keeps the attested hash so a proxy server can re-check it; remote backend must match `schema.backend`; KMS chain IDs above `Number.MAX_SAFE_INTEGER` are encoded as strings.
+- Codex round 8: `VerifiedEvidence.proof.rawProofHash` is required (tickets still omit it); KMS 2xx `null` bodies become `KmsError`.
+- Codex round 9: reject EIP-712 chain IDs that cannot be JSON integers; AirAccount SignTypedData does not accept quoted decimal strings.
+
+Possible impact: `HttpVerifier` now requires `token`. Verifier process requires `VERIFIER_TOKEN` and defaults to loopback.
+
+---
+
+## 0.1.12 — 2026-08-25
+
+- T1.1: `@vericommons/kms` signs EvidenceTicket via AirAccount online KMS (`POST /kms/SignTypedData`, `x-api-key` + optional agent JWT). Kernel `TicketSigner` — no raw issuer key on disk.
+- Standard interfaces: `Prover` / `Verifier` / `Issuer`. Kernel `verify()` is injectable.
+- Independent `@vericommons/verifier` service (`GET /health`, `POST /verify`) + `HttpVerifier` client. Prove and issue stay in other processes.
+- GitHub verify still checks the `RawProof` payload (token is stripped at prove); full independent re-fetch is not this slice.
+
+Possible impact: production issuer should use `AirAccountKmsSigner` and optionally `HttpVerifier`. Local `Wallet` still works for tests. T1.2 auth gateway is next.
+
+Build / test:
+
+```bash
+pnpm install
+pnpm test
+pnpm build
+pnpm --filter @vericommons/verifier start
+```
+
+---
+
+## 0.1.11 — 2026-08-25
+
+- Production TODO as T1–T3 layered slices: hosted issuer (KMS, auth, replay, audit, independent verify), live credits/4337 + more GitHub schemas, then P4/P5. See `docs/plan/T-production.md`.
+
+Possible impact: documentation only. Implement T1.1 next, not T3 first.
+
+---
+
 ## 0.1.10 — 2026-08-25
 
 - README: honest comparison of old vs current positioning; happy path (install, `pnpm happy-path`, plaza `claim`, optional 4337).
