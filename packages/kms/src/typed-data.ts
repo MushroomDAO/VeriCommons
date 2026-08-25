@@ -3,7 +3,7 @@ import { KmsError } from "./errors.js";
 export interface KmsEip712Domain {
   name?: string;
   version?: string;
-  chainId?: number;
+  chainId?: number | string;
   verifyingContract?: string;
 }
 
@@ -62,7 +62,7 @@ export function toKmsTypedData(
     domain: {
       name: domain.name,
       version: domain.version,
-      chainId: domain.chainId === undefined ? undefined : Number(domain.chainId),
+      chainId: encodeChainId(domain.chainId),
       verifyingContract: domain.verifyingContract,
     },
     primaryType: resolvedPrimary,
@@ -75,6 +75,25 @@ export function toKmsTypedData(
       value: encodeKmsValue(field.type, value[field.name]),
     })),
   };
+}
+
+function encodeChainId(chainId: number | bigint | undefined): number | string | undefined {
+  if (chainId === undefined) {
+    return undefined;
+  }
+  if (typeof chainId === "bigint") {
+    if (chainId < 0n) {
+      throw new KmsError("TYPED_DATA", "chainId must be non-negative");
+    }
+    if (chainId > BigInt(Number.MAX_SAFE_INTEGER)) {
+      return chainId.toString();
+    }
+    return Number(chainId);
+  }
+  if (!Number.isSafeInteger(chainId) || chainId < 0) {
+    throw new KmsError("TYPED_DATA", "chainId is not a safe non-negative integer");
+  }
+  return chainId;
 }
 
 function eip712PrimaryType(

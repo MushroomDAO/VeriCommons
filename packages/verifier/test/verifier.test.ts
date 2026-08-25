@@ -48,6 +48,7 @@ describe("independent verifier service", () => {
       const verified = await remote.verify(proof);
       expect(verified.brand).toBe("VerifiedEvidence");
       expect(verified.proof.verifierSet).toBe("remote-worker");
+      expect(verified.proof.rawProofHash).toBe(hashRawProof(proof));
     } finally {
       server.close();
     }
@@ -76,6 +77,34 @@ describe("independent verifier service", () => {
       expect("rawProofHash" in ticket.proof).toBe(false);
     } finally {
       server.close();
+    }
+  });
+
+  it("lets a proxy verifier server keep the attested RawProof hash", async () => {
+    const upstream = createVerifierServer({
+      verifier: createLocalVerifier({ verifierSet: "upstream-worker" }),
+      token: TOKEN,
+    });
+    const upstreamBase = await listen(upstream);
+    const proxy = createVerifierServer({
+      verifier: new HttpVerifier({ url: upstreamBase, token: TOKEN }),
+      token: TOKEN,
+    });
+    const proxyBase = await listen(proxy);
+    try {
+      const prover = createKernel({ signer: Wallet.createRandom() });
+      const proof = await prover.prove({
+        schema: ATTRIBUTION_QUALIFIED_V1,
+        subject: "0x3333333333333333333333333333333333333333",
+        params: { channelId: "channel:alice:wechat", event: "signup", qualified: true },
+      });
+      const remote = new HttpVerifier({ url: proxyBase, token: TOKEN });
+      const verified = await remote.verify(proof);
+      expect(verified.proof.verifierSet).toBe("upstream-worker");
+      expect(verified.proof.rawProofHash).toBe(hashRawProof(proof));
+    } finally {
+      proxy.close();
+      upstream.close();
     }
   });
 
@@ -327,6 +356,49 @@ describe("independent verifier service", () => {
     } finally {
       server.close();
     }
+  });
+
+  it("rejects a remote verify whose backend does not match the schema", async () => {
+    const now = Math.floor(Date.now() / 1000);
+    const remote = new HttpVerifier({
+      url: "http://verifier.test",
+      token: TOKEN,
+      fetchImpl: (async (_input, init) => {
+        const proof = JSON.parse(String(init?.body)) as RawProof;
+        return new Response(
+          JSON.stringify({
+            brand: "VerifiedEvidence",
+            version: "0.1",
+            subject: proof.subject,
+            source: { origin: "vericommons.attribution", type: "issuer" },
+            schema: proof.schema,
+            claim: { qualified: true },
+            issuedAt: now,
+            validUntil: now + 30 * 24 * 60 * 60,
+            nonce: "0x" + "ab".repeat(32),
+            proof: {
+              type: "RESULT_ATTRIBUTION",
+              backend: proof.backend,
+              verifierSet: "hostile-worker",
+              hash: "0x" + "cd".repeat(32),
+              reference: "attribution:channel:alice:wechat",
+              rawProofHash: hashRawProof(proof),
+            },
+            trust: { assumption: "SELF" },
+          }),
+          { status: 200, headers: { "content-type": "application/json" } },
+        );
+      }) as typeof fetch,
+    });
+    await expect(
+      remote.verify({
+        schema: ATTRIBUTION_QUALIFIED_V1,
+        subject: "0x3333333333333333333333333333333333333333",
+        backend: "github-api",
+        observedAt: now,
+        payload: { qualified: true },
+      }),
+    ).rejects.toMatchObject({ code: "VERIFY_BIND" });
   });
 
   it("maps a non-object JSON error body to KernelError", async () => {

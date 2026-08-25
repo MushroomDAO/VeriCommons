@@ -97,8 +97,9 @@ export function bindVerifiedEvidence(parsed: unknown, proof: RawProof): Verified
     throw new KernelError("VERIFY_HTTP", "verified.proof is missing");
   }
   const proofOut = raw.proof as Record<string, unknown>;
-  if (proofOut.backend !== proof.backend) {
-    throw new KernelError("VERIFY_BIND", "verified.proof.backend does not match proof.backend");
+  const schema = getSchema(proof.schema);
+  if (proof.backend !== schema.backend || proofOut.backend !== schema.backend) {
+    throw new KernelError("VERIFY_BIND", "verified.proof.backend does not match the schema");
   }
   if (!BACKEND_VALUES.has(String(proofOut.backend))) {
     throw new KernelError("VERIFY_HTTP", "verified.proof.backend is not a known backend");
@@ -141,7 +142,6 @@ export function bindVerifiedEvidence(parsed: unknown, proof: RawProof): Verified
     throw new KernelError("VERIFY_HTTP", "verified.trust is missing");
   }
   const trust = raw.trust as Record<string, unknown>;
-  const schema = getSchema(proof.schema);
   if (trust.assumption !== schema.trust) {
     throw new KernelError("VERIFY_BIND", "verified.trust.assumption does not match the schema");
   }
@@ -158,9 +158,8 @@ export function bindVerifiedEvidence(parsed: unknown, proof: RawProof): Verified
   if (raw.validUntil !== raw.issuedAt + schema.ttlSeconds) {
     throw new KernelError("VERIFY_HTTP", "verified.validUntil does not match the schema ttl");
   }
-  const { rawProofHash: _rawProofHash, ...restProof } = proofOut;
   return {
     ...raw,
-    proof: restProof,
+    proof: proofOut,
   } as unknown as VerifiedEvidence;
 }
