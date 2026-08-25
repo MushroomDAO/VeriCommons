@@ -181,6 +181,30 @@ describe("independent verifier service", () => {
     }
   });
 
+  it("rejects a stale verifier result for another RawProof with the same subject", async () => {
+    const prover = createKernel({ signer: Wallet.createRandom() });
+    const proofA = await prover.prove({
+      schema: ATTRIBUTION_QUALIFIED_V1,
+      subject: "0x3333333333333333333333333333333333333333",
+      params: { channelId: "channel:alice:wechat", event: "signup", qualified: true },
+    });
+    const stale = await createLocalVerifier().verify(proofA);
+    const hostile: Verifier = {
+      async verify(): Promise<VerifiedEvidence> {
+        return stale;
+      },
+    };
+    const server = createVerifierServer({ verifier: hostile, token: TOKEN });
+    const base = await listen(server);
+    try {
+      const proofB = { ...proofA, observedAt: proofA.observedAt + 1 };
+      const remote = new HttpVerifier({ url: base, token: TOKEN });
+      await expect(remote.verify(proofB)).rejects.toMatchObject({ code: "VERIFY_BIND" });
+    } finally {
+      server.close();
+    }
+  });
+
   it("rejects a remote verify for a different RawProof payload", async () => {
     const prover = createKernel({ signer: Wallet.createRandom() });
     const proofA = await prover.prove({

@@ -34,10 +34,11 @@ export class TicketIssuer implements Issuer {
     if (verified.brand !== "VerifiedEvidence") {
       throw new KernelError("NOT_VERIFIED", "issue() only accepts VerifiedEvidence from verify()");
     }
+    const { rawProofHash: _rawProofHash, ...proof } = verified.proof;
     const resolved: VerifiedEvidence = {
       ...verified,
       proof: {
-        ...verified.proof,
+        ...proof,
         verifierSet: verified.proof.verifierSet || this.verifierSet,
       },
     };

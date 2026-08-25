@@ -3,7 +3,7 @@ import { AttributionBackend } from "./backends/attribution.js";
 import { GithubApiBackend, type FetchLike } from "./backends/github-api.js";
 import { OnchainBackend } from "./backends/onchain.js";
 import { PublicWebBackend } from "./backends/public-web.js";
-import { stableStringify } from "./canonical.js";
+import { hashRawProof, stableStringify } from "./canonical.js";
 import { KernelError } from "./errors.js";
 import { newNonce } from "./issuer.js";
 import { getSchema } from "./schemas.js";
@@ -69,6 +69,7 @@ export class LocalVerifier implements Verifier {
         verifierSet: this.verifierSet,
         hash,
         reference: checked.reference,
+        rawProofHash: hashRawProof(proof),
       },
       trust: {
         assumption: schema.trust,

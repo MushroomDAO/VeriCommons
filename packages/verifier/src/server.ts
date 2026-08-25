@@ -54,10 +54,10 @@ async function handleRequest(
         return;
       }
       const verified = await verifier.verify(proof);
-      writeJson(res, 200, {
-        ...verified,
-        proof: { ...verified.proof, rawProofHash: hashRawProof(proof) },
-      });
+      if (verified.proof.rawProofHash !== hashRawProof(proof)) {
+        throw new KernelError("VERIFY_BIND", "verifier did not attest this RawProof");
+      }
+      writeJson(res, 200, verified);
     } catch (err) {
       if (err instanceof KernelError) {
         writeJson(res, 400, { error: { code: err.code, message: err.message } });

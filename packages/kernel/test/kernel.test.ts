@@ -220,6 +220,7 @@ describe("P1 kernel", () => {
     });
     const ticket = await kernel.issue(await kernel.verify(proof));
     expect(ticket.proof.verifierSet).toBe("vericommons-kernel");
+    expect("rawProofHash" in ticket.proof).toBe(false);
     assertTicketSignature(ticket, signer.address);
   });
 });

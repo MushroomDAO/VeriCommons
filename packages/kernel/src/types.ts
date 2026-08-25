@@ -43,6 +43,8 @@ export interface VerifiedEvidence {
     verifierSet: string;
     hash: string;
     reference: string;
+    /** HTTP-only binding of the RawProof that was verified. Never signed onto tickets. */
+    rawProofHash?: string;
   };
   trust: {
     assumption: TrustAssumption;
