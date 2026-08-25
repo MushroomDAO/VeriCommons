@@ -4,7 +4,7 @@
 
 Immediate proof when a digital response exists; delayed attribution when it does not. Optional engines: official APIs, Public Web, zkPass, Reclaim, TLSNotary.
 
-P1 kernel: [`packages/kernel`](packages/kernel). Plaza / credits / 4337 are not in this package.
+P1 kernel: [`packages/kernel`](packages/kernel). P2 plaza wrapper: [`packages/task`](packages/task). ERC-4337 is P3.
 
 ```bash
 pnpm install

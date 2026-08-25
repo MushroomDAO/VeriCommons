@@ -1,5 +1,23 @@
 # Changes
 
+## 0.1.7 — 2026-08-25
+
+- Implemented P2 `@vericommons/task`: bind kernel tickets to `taskId`, return PASS/FAIL/PENDING, grant credits with `{ evidenceId, schema, subject, amount }`.
+- Demo tasks: GitHub star (immediate) and attribution signup (delayed PENDING then PASS).
+- `issue()` stays in `@vericommons/kernel`. Plaza/credits do not parse RawProof.
+
+Possible impact: Task Plaza should call `TaskService.claim()`; credit ledger must not verify TLS.
+
+Build / test:
+
+```bash
+pnpm install
+pnpm test
+pnpm build
+```
+
+---
+
 ## 0.1.6 — 2026-08-25
 
 - Implemented P1 `@vericommons/kernel`: `prove` / `verify` / `issue` (EIP-712 ticket).
