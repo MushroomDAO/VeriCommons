@@ -17,7 +17,11 @@ export function createVerifierServer(opts: VerifierServerOptions): Server {
   }
   const expected = Buffer.from(opts.token, "utf8");
   return createServer((req, res) => {
-    void handleRequest(req, res, opts.verifier, expected);
+    void handleRequest(req, res, opts.verifier, expected).catch(() => {
+      if (!res.headersSent) {
+        writeJson(res, 400, { error: { code: "BAD_REQUEST", message: "invalid request" } });
+      }
+    });
   });
 }
 
@@ -27,7 +31,13 @@ async function handleRequest(
   verifier: Verifier,
   expectedToken: Buffer,
 ): Promise<void> {
-  const url = new URL(req.url ?? "/", "http://verifier.local");
+  let url: URL;
+  try {
+    url = new URL(req.url ?? "/", "http://verifier.local");
+  } catch {
+    writeJson(res, 400, { error: { code: "BAD_REQUEST", message: "invalid request target" } });
+    return;
+  }
   if (req.method === "GET" && url.pathname === "/health") {
     writeJson(res, 200, { ok: true });
     return;

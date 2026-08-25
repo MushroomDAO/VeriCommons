@@ -1,4 +1,5 @@
 import { type Server } from "node:http";
+import { request as httpRequest } from "node:http";
 import { Wallet } from "ethers";
 import { describe, expect, it } from "vitest";
 import {
@@ -150,6 +151,70 @@ describe("independent verifier service", () => {
       });
       const remote = new HttpVerifier({ url: base, token: TOKEN });
       await expect(remote.verify(proof)).rejects.toMatchObject({ code: "VERIFY_BIND" });
+    } finally {
+      server.close();
+    }
+  });
+
+  it("rejects a remote verify that omits verifierSet", async () => {
+    const hostile: Verifier = {
+      async verify(proof): Promise<VerifiedEvidence> {
+        const honest = await createLocalVerifier().verify(proof);
+        return { ...honest, proof: { ...honest.proof, verifierSet: "" } };
+      },
+    };
+    const server = createVerifierServer({ verifier: hostile, token: TOKEN });
+    const base = await listen(server);
+    try {
+      const prover = createKernel({ signer: Wallet.createRandom() });
+      const proof = await prover.prove({
+        schema: ATTRIBUTION_QUALIFIED_V1,
+        subject: "0x3333333333333333333333333333333333333333",
+        params: { channelId: "channel:alice:wechat", event: "signup", qualified: true },
+      });
+      const remote = new HttpVerifier({ url: base, token: TOKEN });
+      await expect(remote.verify(proof)).rejects.toMatchObject({ code: "VERIFY_HTTP" });
+    } finally {
+      server.close();
+    }
+  });
+
+  it("maps a non-object JSON error body to KernelError", async () => {
+    const remote = new HttpVerifier({
+      url: "http://verifier.test",
+      token: TOKEN,
+      fetchImpl: (async () => new Response("null", { status: 502 })) as typeof fetch,
+    });
+    await expect(
+      remote.verify({
+        schema: ATTRIBUTION_QUALIFIED_V1,
+        subject: "0x1",
+        backend: "attribution",
+        observedAt: 1,
+        payload: {},
+      }),
+    ).rejects.toMatchObject({ code: "VERIFY_HTTP", message: "verifier HTTP 502" });
+  });
+
+  it("does not crash on a malformed request target", async () => {
+    const server = createVerifierServer({ verifier: createLocalVerifier(), token: TOKEN });
+    const base = await listen(server);
+    const port = Number(new URL(base).port);
+    try {
+      const status = await new Promise<number>((resolve, reject) => {
+        const req = httpRequest(
+          { hostname: "127.0.0.1", port, path: "http://%", method: "GET" },
+          (res) => {
+            res.resume();
+            resolve(res.statusCode ?? 0);
+          },
+        );
+        req.on("error", reject);
+        req.end();
+      });
+      expect(status).toBe(400);
+      const health = await fetch(`${base}/health`);
+      expect(health.status).toBe(200);
     } finally {
       server.close();
     }

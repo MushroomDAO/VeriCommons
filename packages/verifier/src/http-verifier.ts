@@ -1,6 +1,17 @@
-import { KernelError, type RawProof, type VerifiedEvidence, type Verifier } from "@vericommons/kernel";
+import {
+  EVIDENCE_VERSION,
+  KERNEL_BACKENDS,
+  KernelError,
+  TrustAssumption,
+  type RawProof,
+  type VerifiedEvidence,
+  type Verifier,
+} from "@vericommons/kernel";
 
 export const VERIFIER_TOKEN_HEADER = "x-vericommons-token";
+
+const TRUST_VALUES = new Set<string>(Object.values(TrustAssumption));
+const BACKEND_VALUES = new Set<string>(KERNEL_BACKENDS);
 
 export interface HttpVerifierOptions {
   /** Origin of the verifier process, e.g. http://127.0.0.1:8787 */
@@ -42,14 +53,24 @@ export class HttpVerifier implements Verifier {
       throw new KernelError("VERIFY_HTTP", `verifier returned non-JSON (${res.status})`);
     }
     if (!res.ok) {
-      const err = parsed as { error?: { code?: string; message?: string } };
-      throw new KernelError(
-        err.error?.code ?? "VERIFY_HTTP",
-        err.error?.message ?? `verifier HTTP ${res.status}`,
-      );
+      throw errorFromBody(parsed, res.status);
     }
     return bindVerifiedEvidence(parsed, proof);
   }
+}
+
+function errorFromBody(parsed: unknown, status: number): KernelError {
+  if (typeof parsed === "object" && parsed !== null) {
+    const error = (parsed as { error?: unknown }).error;
+    if (typeof error === "object" && error !== null) {
+      const rec = error as { code?: unknown; message?: unknown };
+      return new KernelError(
+        typeof rec.code === "string" ? rec.code : "VERIFY_HTTP",
+        typeof rec.message === "string" ? rec.message : `verifier HTTP ${status}`,
+      );
+    }
+  }
+  return new KernelError("VERIFY_HTTP", `verifier HTTP ${status}`);
 }
 
 /** Reject a remote verify that does not match the proof we sent. */
@@ -67,6 +88,9 @@ export function bindVerifiedEvidence(parsed: unknown, proof: RawProof): Verified
   if (raw.schema !== proof.schema) {
     throw new KernelError("VERIFY_BIND", "verified.schema does not match proof.schema");
   }
+  if (raw.version !== EVIDENCE_VERSION) {
+    throw new KernelError("VERIFY_HTTP", `verified.version must be ${EVIDENCE_VERSION}`);
+  }
   if (typeof raw.proof !== "object" || raw.proof === null) {
     throw new KernelError("VERIFY_HTTP", "verified.proof is missing");
   }
@@ -74,14 +98,23 @@ export function bindVerifiedEvidence(parsed: unknown, proof: RawProof): Verified
   if (proofOut.backend !== proof.backend) {
     throw new KernelError("VERIFY_BIND", "verified.proof.backend does not match proof.backend");
   }
-  if (typeof raw.version !== "string") {
-    throw new KernelError("VERIFY_HTTP", "verified.version is missing");
+  if (!BACKEND_VALUES.has(String(proofOut.backend))) {
+    throw new KernelError("VERIFY_HTTP", "verified.proof.backend is not a known backend");
+  }
+  if (typeof proofOut.verifierSet !== "string" || proofOut.verifierSet.length === 0) {
+    throw new KernelError("VERIFY_HTTP", "verified.proof.verifierSet is missing");
+  }
+  if (typeof proofOut.hash !== "string" || proofOut.hash.length === 0) {
+    throw new KernelError("VERIFY_HTTP", "verified.proof.hash is missing");
+  }
+  if (typeof proofOut.type !== "string" || proofOut.type.length === 0) {
+    throw new KernelError("VERIFY_HTTP", "verified.proof.type is missing");
   }
   if (typeof raw.issuedAt !== "number" || typeof raw.validUntil !== "number") {
     throw new KernelError("VERIFY_HTTP", "verified timestamps are missing");
   }
-  if (typeof raw.nonce !== "string" || typeof proofOut.hash !== "string") {
-    throw new KernelError("VERIFY_HTTP", "verified nonce or proof.hash is missing");
+  if (typeof raw.nonce !== "string" || raw.nonce.length === 0) {
+    throw new KernelError("VERIFY_HTTP", "verified.nonce is missing");
   }
   if (typeof raw.claim !== "object" || raw.claim === null) {
     throw new KernelError("VERIFY_HTTP", "verified.claim is missing");
@@ -90,8 +123,8 @@ export function bindVerifiedEvidence(parsed: unknown, proof: RawProof): Verified
     throw new KernelError("VERIFY_HTTP", "verified.trust is missing");
   }
   const trust = raw.trust as Record<string, unknown>;
-  if (typeof trust.assumption !== "string" || trust.assumption.length === 0) {
-    throw new KernelError("VERIFY_HTTP", "verified.trust.assumption is missing");
+  if (typeof trust.assumption !== "string" || !TRUST_VALUES.has(trust.assumption)) {
+    throw new KernelError("VERIFY_HTTP", "verified.trust.assumption is not a known label");
   }
   return raw as unknown as VerifiedEvidence;
 }
