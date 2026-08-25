@@ -1,6 +1,8 @@
 export { Kernel, createKernel } from "./kernel.js";
 export type { KernelOptions } from "./kernel.js";
 export { KernelError } from "./errors.js";
+export { LocalVerifier, createLocalVerifier } from "./local-verifier.js";
+export type { LocalVerifierOptions } from "./local-verifier.js";
 export { TrustAssumption, P1_BACKENDS, KERNEL_BACKENDS } from "./trust.js";
 export type { P1BackendId, BackendId } from "./trust.js";
 export {
@@ -18,7 +20,7 @@ export {
   ticketTypedValue,
 } from "./issuer.js";
 export { EVIDENCE_TICKET_TYPEHASH, eip712Domain, EVIDENCE_TICKET_TYPES } from "./eip712.js";
-export { hashClaim, stableStringify } from "./canonical.js";
+export { hashClaim, hashRawProof, stableStringify } from "./canonical.js";
 export { GithubApiBackend } from "./backends/github-api.js";
 export { PublicWebBackend } from "./backends/public-web.js";
 export { AttributionBackend } from "./backends/attribution.js";
@@ -28,10 +30,14 @@ export type {
   EvidenceRequest,
   EvidenceSource,
   EvidenceTicket,
+  Issuer,
+  Prover,
   ProofBackend,
   RawProof,
   RpcReader,
   SchemaDefinition,
+  TicketSigner,
   VerifiedEvidence,
+  Verifier,
 } from "./types.js";
 export { EVIDENCE_VERSION } from "./types.js";

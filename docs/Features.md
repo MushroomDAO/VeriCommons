@@ -26,17 +26,17 @@ Unified portable credential. All backends emit the same object: subject, source,
 
 This is the product. Everything else consumes it.
 
-### F2. prove / verify / credential
+### F2. prove / verify / issue
 
-Minimal developer surface:
+Three standard interfaces (`Prover`, `Verifier`, `Issuer`). Each can be a separate process:
 
 ```ts
 prove(request) → RawProof
 verify(proof) → VerifiedEvidence
-credential(verified) → EvidenceCredential
+issue(verified) → EvidenceTicket
 ```
 
-Apps should not talk to Reclaim or TLSNotary directly.
+Production: `TicketSigner` is AirAccount KMS (`POST /kms/SignTypedData`). `Verifier` can be `@vericommons/verifier` over HTTP. Apps should not talk to Reclaim or TLSNotary directly.
 
 ### F3. ProofBackend plug-in
 

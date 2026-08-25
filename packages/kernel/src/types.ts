@@ -43,13 +43,16 @@ export interface VerifiedEvidence {
     verifierSet: string;
     hash: string;
     reference: string;
+    /** Digest of the RawProof that was verified. Stripped before signing tickets. */
+    rawProofHash: string;
   };
   trust: {
     assumption: TrustAssumption;
   };
 }
 
-export interface EvidenceTicket extends Omit<VerifiedEvidence, "brand"> {
+export interface EvidenceTicket extends Omit<VerifiedEvidence, "brand" | "proof"> {
+  proof: Omit<VerifiedEvidence["proof"], "rawProofHash">;
   issuer: string;
   signature: string;
 }
@@ -80,4 +83,32 @@ export interface IssuerClock {
 /** Relayer / indexer read. Contracts do not fetch HTTPS. */
 export interface RpcReader {
   ethCall(to: string, data: string): Promise<string>;
+}
+
+/** Standard surface: three roles, three processes if you want. */
+export interface Prover {
+  prove(request: EvidenceRequest): Promise<RawProof>;
+}
+
+export interface Verifier {
+  verify(proof: RawProof): Promise<VerifiedEvidence>;
+}
+
+export interface Issuer {
+  issue(verified: VerifiedEvidence): Promise<EvidenceTicket>;
+}
+
+/** Local wallet or external KMS. Kernel never requires a raw key on disk. */
+export interface TicketSigner {
+  getAddress(): Promise<string>;
+  signTypedData(
+    domain: {
+      name?: string;
+      version?: string;
+      chainId?: number | bigint;
+      verifyingContract?: string;
+    },
+    types: Record<string, Array<{ name: string; type: string }>>,
+    value: Record<string, unknown>,
+  ): Promise<string>;
 }

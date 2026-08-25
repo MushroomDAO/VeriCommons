@@ -1,0 +1,35 @@
+{
+  "name": "@vericommons/verifier",
+  "version": "0.1.12",
+  "description": "Independent HTTP Verifier. prove and issue stay in other processes.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "start": "node dist/start.js"
+  },
+  "dependencies": {
+    "@vericommons/kernel": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.0",
+    "ethers": "^6.15.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

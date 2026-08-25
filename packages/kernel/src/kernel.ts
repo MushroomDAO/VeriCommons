@@ -1,24 +1,30 @@
-import { keccak256, toUtf8Bytes, type Signer } from "ethers";
 import { AttributionBackend } from "./backends/attribution.js";
 import { GithubApiBackend, type FetchLike } from "./backends/github-api.js";
 import { OnchainBackend } from "./backends/onchain.js";
 import { PublicWebBackend } from "./backends/public-web.js";
-import { stableStringify } from "./canonical.js";
 import { KernelError } from "./errors.js";
-import { newNonce, TicketIssuer } from "./issuer.js";
+import { TicketIssuer } from "./issuer.js";
+import { createLocalVerifier } from "./local-verifier.js";
 import { getSchema } from "./schemas.js";
 import type {
   EvidenceRequest,
   EvidenceTicket,
+  Issuer,
   IssuerClock,
+  Prover,
   ProofBackend,
   RawProof,
   RpcReader,
+  TicketSigner,
   VerifiedEvidence,
+  Verifier,
 } from "./types.js";
 
 export interface KernelOptions {
-  signer: Signer;
+  /** Local ethers Wallet in tests; AirAccount KMS signer in production (T1.1). */
+  signer: TicketSigner;
+  /** Override verify. Default is in-process LocalVerifier. Production injects HttpVerifier. */
+  verifier?: Verifier;
   fetchImpl?: FetchLike;
   rpc?: RpcReader;
   clock?: IssuerClock;
@@ -27,10 +33,10 @@ export interface KernelOptions {
   verifierSet?: string;
 }
 
-export class Kernel {
+export class Kernel implements Prover, Verifier, Issuer {
   readonly issuer: TicketIssuer;
+  readonly verifier: Verifier;
   private readonly backends: Map<string, ProofBackend>;
-  private readonly clock: IssuerClock;
 
   constructor(opts: KernelOptions) {
     this.issuer = new TicketIssuer({
@@ -46,7 +52,14 @@ export class Kernel {
       ["attribution", new AttributionBackend()],
       ["onchain", new OnchainBackend(opts.rpc)],
     ]);
-    this.clock = opts.clock ?? { now: () => Math.floor(Date.now() / 1000) };
+    this.verifier =
+      opts.verifier ??
+      createLocalVerifier({
+        fetchImpl,
+        rpc: opts.rpc,
+        clock: opts.clock,
+        verifierSet: opts.verifierSet ?? this.issuer.verifierSet,
+      });
   }
 
   /** Collect a RawProof. Does not issue a ticket. */
@@ -68,44 +81,7 @@ export class Kernel {
 
   /** Check a RawProof. Returns a branded object that issue() will accept. */
   async verify(proof: RawProof): Promise<VerifiedEvidence> {
-    const schema = getSchema(proof.schema);
-    if (proof.backend !== schema.backend) {
-      throw new KernelError("BACKEND", `schema ${schema.id} requires backend ${schema.backend}`);
-    }
-    const backend = this.backends.get(schema.backend);
-    if (!backend) {
-      throw new KernelError("BACKEND", `no P1 backend for ${schema.backend}`);
-    }
-    const checked = await backend.verify(proof);
-    const issuedAt = this.clock.now();
-    const nonce = newNonce();
-    const hash = keccak256(toUtf8Bytes(stableStringify(checked.hashMaterial)));
-
-    const verified: VerifiedEvidence = {
-      brand: "VerifiedEvidence",
-      version: "0.1",
-      subject: proof.subject,
-      source: schema.source,
-      schema: schema.id,
-      claim: checked.claim,
-      issuedAt,
-      validUntil: issuedAt + schema.ttlSeconds,
-      nonce,
-      proof: {
-        type: schema.proofType,
-        backend: schema.backend,
-        verifierSet: this.issuer.verifierSet,
-        hash,
-        reference: checked.reference,
-      },
-      trust: {
-        assumption: schema.trust,
-      },
-    };
-    if (!verified.trust.assumption) {
-      throw new KernelError("TRUST", "trust.assumption must not be empty");
-    }
-    return verified;
+    return this.verifier.verify(proof);
   }
 
   /** Issue our entry ticket. Plaza, credits, and 4337 consume this object only. */

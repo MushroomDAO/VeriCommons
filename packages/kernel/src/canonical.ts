@@ -24,6 +24,27 @@ export function hashClaim(claim: Record<string, unknown>): string {
   return keccak256(toUtf8Bytes(stableStringify(claim)));
 }
 
+/** Digest of the full RawProof so a remote Verifier cannot swap payloads. */
+export function hashRawProof(proof: {
+  schema: string;
+  subject: string;
+  backend: string;
+  observedAt: number;
+  payload: Record<string, unknown>;
+}): string {
+  return keccak256(
+    toUtf8Bytes(
+      stableStringify({
+        schema: proof.schema,
+        subject: proof.subject,
+        backend: proof.backend,
+        observedAt: proof.observedAt,
+        payload: proof.payload,
+      }),
+    ),
+  );
+}
+
 export function assertNoSecrets(payload: Record<string, unknown>): void {
   const banned = ["accessToken", "token", "authorization", "cookie", "password"];
   const keys = collectKeys(payload);
