@@ -33,6 +33,14 @@ If credits later need on-chain settlement, they check ticket hash / issuer signa
 - PENDING for delayed tasks
 - Hook into existing credit API
 
+## Implementation (0.1.7)
+
+Code: `packages/task` (`@vericommons/task`). Calls `kernel.prove/verify/issue` or reuses a signed ticket. Credits receive only `{ evidenceId, schema, subject, amount }`.
+
+```bash
+pnpm install && pnpm test && pnpm build
+```
+
 ## Exit
 
 - One immediate plaza task (e.g. GitHub star) grants credits
