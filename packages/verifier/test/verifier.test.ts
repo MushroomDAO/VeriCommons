@@ -6,6 +6,7 @@ import {
   ATTRIBUTION_QUALIFIED_V1,
   createKernel,
   createLocalVerifier,
+  hashRawProof,
   type RawProof,
   type VerifiedEvidence,
   type Verifier,
@@ -72,6 +73,7 @@ describe("independent verifier service", () => {
       const ticket = await kernel.issue(await kernel.verify(proof));
       expect(ticket.proof.verifierSet).toBe("remote-worker");
       expect(ticket.issuer).toBe(signer.address);
+      expect("rawProofHash" in ticket.proof).toBe(false);
     } finally {
       server.close();
     }
@@ -191,10 +193,16 @@ describe("independent verifier service", () => {
       url: "http://verifier.test",
       token: TOKEN,
       fetchImpl: (async () =>
-        new Response(JSON.stringify(verifiedA), {
-          status: 200,
-          headers: { "content-type": "application/json" },
-        })) as typeof fetch,
+        new Response(
+          JSON.stringify({
+            ...verifiedA,
+            proof: { ...verifiedA.proof, rawProofHash: hashRawProof(proofA) },
+          }),
+          {
+            status: 200,
+            headers: { "content-type": "application/json" },
+          },
+        )) as typeof fetch,
     });
     const proofB = { ...proofA, observedAt: proofA.observedAt + 1 };
     await expect(remote.verify(proofB)).rejects.toMatchObject({ code: "VERIFY_BIND" });
@@ -219,6 +227,29 @@ describe("independent verifier service", () => {
       });
       const remote = new HttpVerifier({ url: base, token: TOKEN });
       await expect(remote.verify(proof)).rejects.toMatchObject({ code: "VERIFY_HTTP" });
+    } finally {
+      server.close();
+    }
+  });
+
+  it("rejects a remote verify that relabels trust.assumption", async () => {
+    const hostile: Verifier = {
+      async verify(proof): Promise<VerifiedEvidence> {
+        const honest = await createLocalVerifier().verify(proof);
+        return { ...honest, trust: { assumption: "VENDOR_ZKPASS" } };
+      },
+    };
+    const server = createVerifierServer({ verifier: hostile, token: TOKEN });
+    const base = await listen(server);
+    try {
+      const prover = createKernel({ signer: Wallet.createRandom() });
+      const proof = await prover.prove({
+        schema: ATTRIBUTION_QUALIFIED_V1,
+        subject: "0x3333333333333333333333333333333333333333",
+        params: { channelId: "channel:alice:wechat", event: "signup", qualified: true },
+      });
+      const remote = new HttpVerifier({ url: base, token: TOKEN });
+      await expect(remote.verify(proof)).rejects.toMatchObject({ code: "VERIFY_BIND" });
     } finally {
       server.close();
     }

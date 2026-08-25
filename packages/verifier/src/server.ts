@@ -1,6 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
-import { KernelError, type RawProof, type Verifier } from "@vericommons/kernel";
+import { KernelError, hashRawProof, type RawProof, type Verifier } from "@vericommons/kernel";
 import { VERIFIER_TOKEN_HEADER } from "./http-verifier.js";
 
 const MAX_BODY = 64 * 1024;
@@ -54,7 +54,10 @@ async function handleRequest(
         return;
       }
       const verified = await verifier.verify(proof);
-      writeJson(res, 200, verified);
+      writeJson(res, 200, {
+        ...verified,
+        proof: { ...verified.proof, rawProofHash: hashRawProof(proof) },
+      });
     } catch (err) {
       if (err instanceof KernelError) {
         writeJson(res, 400, { error: { code: err.code, message: err.message } });

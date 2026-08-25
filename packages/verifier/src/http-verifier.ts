@@ -2,7 +2,7 @@ import {
   EVIDENCE_VERSION,
   KERNEL_BACKENDS,
   KernelError,
-  TrustAssumption,
+  getSchema,
   hashRawProof,
   type RawProof,
   type VerifiedEvidence,
@@ -11,7 +11,6 @@ import {
 
 export const VERIFIER_TOKEN_HEADER = "x-vericommons-token";
 
-const TRUST_VALUES = new Set<string>(Object.values(TrustAssumption));
 const BACKEND_VALUES = new Set<string>(KERNEL_BACKENDS);
 const SOURCE_TYPES = new Set(["https", "onchain", "issuer"]);
 
@@ -141,8 +140,13 @@ export function bindVerifiedEvidence(parsed: unknown, proof: RawProof): Verified
     throw new KernelError("VERIFY_HTTP", "verified.trust is missing");
   }
   const trust = raw.trust as Record<string, unknown>;
-  if (typeof trust.assumption !== "string" || !TRUST_VALUES.has(trust.assumption)) {
-    throw new KernelError("VERIFY_HTTP", "verified.trust.assumption is not a known label");
+  const schema = getSchema(proof.schema);
+  if (trust.assumption !== schema.trust) {
+    throw new KernelError("VERIFY_BIND", "verified.trust.assumption does not match the schema");
   }
-  return raw as unknown as VerifiedEvidence;
+  const { rawProofHash: _rawProofHash, ...restProof } = proofOut;
+  return {
+    ...raw,
+    proof: restProof,
+  } as unknown as VerifiedEvidence;
 }

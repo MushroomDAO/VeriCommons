@@ -42,7 +42,6 @@ export interface VerifiedEvidence {
     backend: BackendId;
     verifierSet: string;
     hash: string;
-    rawProofHash: string;
     reference: string;
   };
   trust: {

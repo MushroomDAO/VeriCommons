@@ -6,6 +6,7 @@
 - T1.1 checkbox reverted: client exists, live AirAccount round-trip is not yet proven.
 - Codex review: catch malformed request targets (no unauthenticated crash); reject empty `verifierSet` / unknown trust labels; map non-object JSON error bodies to `KernelError`.
 - Codex round 2: bind remote verify to `hashRawProof(RawProof)`; require `source` and `proof.reference`.
+- Codex round 3: require schema-declared `trust.assumption`; keep `rawProofHash` on the HTTP envelope only, not on signed tickets.
 
 Possible impact: `HttpVerifier` now requires `token`. Verifier process requires `VERIFIER_TOKEN` and defaults to loopback.
 
