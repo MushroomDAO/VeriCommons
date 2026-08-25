@@ -1,7 +1,7 @@
 {
-  "name": "@vericommons/kernel",
-  "version": "0.1.6",
-  "description": "Backend-agnostic prove / verify / issue kernel. We always issue the entry ticket.",
+  "name": "@vericommons/aa",
+  "version": "0.1.8",
+  "description": "ERC-4337 adapter: consume kernel tickets and bind subjects via EIP-1271. Does not issue tickets.",
   "type": "module",
   "license": "Apache-2.0",
   "engines": {
@@ -16,19 +16,18 @@
     }
   },
   "files": [
-    "dist",
-    "schemas"
+    "dist"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "vitest run",
-    "happy-path": "tsc -p tsconfig.json && node examples/happy-path.mjs"
+    "test": "vitest run"
   },
   "dependencies": {
-    "ethers": "^6.15.0"
+    "@vericommons/kernel": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.18.0",
+    "ethers": "^6.15.0",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
   }

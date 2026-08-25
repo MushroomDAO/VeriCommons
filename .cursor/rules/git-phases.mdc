@@ -1,0 +1,13 @@
+---
+description: Always commit phase work and open stacked PRs; never self-merge.
+alwaysApply: true
+---
+
+# Git for VeriCommons phases
+
+When a planned phase (P1–P5) or a requested implementation is done and tests pass:
+
+1. Commit. Do not leave finished work uncommitted.
+2. Push an independent branch and open a PR. Wait for **external review**. Never merge the PR yourself.
+3. Keep earlier phase PRs open. Do not merge them into `main` to “clean up”.
+4. Start the next phase from the latest phase branch. Open a **stacked PR** whose base is that branch (not `main`), so nested merge stays possible later.

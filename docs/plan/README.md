@@ -21,6 +21,6 @@ Verify starts **centralized (honest about it)**, then moves to **decentralized**
 
 Do not skip P1. P2 and P3 can overlap after tickets exist. P4 is optional per task type. P5 does not block plaza launch.
 
-Also: [tech stack](./tech-stack.md) · [Cloud Agent](./cursor-cloud.md) · [vendor clones](../../vendor/README.md)
+Also: [tech stack](./tech-stack.md) · [Cloud Agent](./cursor-cloud.md) · [vendor clones](../../vendor/README.md) · [Ecosystem / DVT](../Ecosystem.md)
 
 Old `docs/Plan.md` is a pointer to this directory.

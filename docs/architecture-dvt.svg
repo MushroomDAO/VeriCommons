@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 640" width="1100" height="640" role="img" aria-labelledby="title desc">
+  <title id="title">Three independent verifiers, one issue</title>
+  <desc id="desc">RawProof is checked by three separately deployed verifier operators. A 2-of-3 quorum is required before a single issuer calls issue. Consumers only read the ticket.</desc>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#a1a1aa"/>
+    </marker>
+    <marker id="arrBlue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#059669"/>
+    </marker>
+  </defs>
+  <rect width="1100" height="640" fill="#fafafa"/>
+
+  <text x="32" y="36" font-family="ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="700" fill="#18181b">Decentralized verify: 2-of-3, then one issue()</text>
+  <text x="32" y="56" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#52525b">Three operator hosts, not three threads. Issuer is a separate role. Apps consume the ticket only.</text>
+
+  <rect x="32" y="84" width="180" height="88" rx="8" fill="#fff" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="122" y="118" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700" fill="#1d4ed8">Prover</text>
+  <text x="122" y="140" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#52525b">RawProof</text>
+  <text x="122" y="156" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#71717a">ours or vendor</text>
+
+  <line x1="212" y1="128" x2="268" y2="128" stroke="#2563eb" stroke-width="1.5" marker-end="url(#arrBlue)"/>
+
+  <rect x="272" y="76" width="500" height="268" rx="10" fill="#e8eef7" stroke="#2563eb"/>
+  <text x="292" y="98" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" font-weight="700" fill="#1d4ed8">VERIFIER OPERATORS - separate hosts, separate keys</text>
+
+  <rect x="296" y="114" width="144" height="88" rx="8" fill="#fff" stroke="#2563eb"/>
+  <text x="368" y="148" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="700" fill="#1d4ed8">Verifier A</text>
+  <text x="368" y="170" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#52525b">API / Public Web</text>
+  <rect x="450" y="114" width="144" height="88" rx="8" fill="#fff" stroke="#2563eb"/>
+  <text x="522" y="148" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="700" fill="#1d4ed8">Verifier B</text>
+  <text x="522" y="170" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#52525b">self-hosted TLSNotary</text>
+  <rect x="604" y="114" width="144" height="88" rx="8" fill="#fff" stroke="#2563eb"/>
+  <text x="676" y="148" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="700" fill="#1d4ed8">Verifier C</text>
+  <text x="676" y="170" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#52525b">third party / vendor</text>
+
+  <line x1="368" y1="202" x2="522" y2="228" stroke="#a1a1aa" stroke-width="1.2"/>
+  <line x1="522" y1="202" x2="522" y2="228" stroke="#a1a1aa" stroke-width="1.2"/>
+  <line x1="676" y1="202" x2="522" y2="228" stroke="#a1a1aa" stroke-width="1.2"/>
+
+  <rect x="392" y="228" width="260" height="88" rx="8" fill="#fff" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="522" y="264" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700" fill="#1d4ed8">Quorum 2-of-3</text>
+  <text x="522" y="286" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#52525b">fail closed if missing</text>
+
+  <line x1="772" y1="272" x2="828" y2="200" stroke="#059669" stroke-width="1.5" marker-end="url(#arrGreen)"/>
+
+  <rect x="832" y="76" width="236" height="268" rx="10" fill="#ecfdf5" stroke="#059669"/>
+  <text x="950" y="100" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" font-weight="700" fill="#047857">ISSUER - one issue()</text>
+  <rect x="856" y="120" width="188" height="88" rx="8" fill="#fff" stroke="#059669" stroke-width="1.5"/>
+  <text x="950" y="156" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="16" font-weight="700" fill="#047857">issue()</text>
+  <text x="950" y="178" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#065f46">our key or yours</text>
+  <rect x="856" y="224" width="188" height="96" rx="8" fill="#fff" stroke="#059669"/>
+  <text x="950" y="258" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="700" fill="#047857">One credential</text>
+  <text x="950" y="280" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#065f46">customizable ticket / VC</text>
+  <text x="950" y="298" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#065f46">verifierSet + trust label</text>
+
+  <rect x="32" y="368" width="1036" height="240" rx="10" fill="#f4f4f5" stroke="#e4e4e7"/>
+  <text x="48" y="392" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" font-weight="700" fill="#71717a">CONSUMERS - same ticket, no vendor proof bytes</text>
+  <rect x="48" y="412" width="236" height="56" rx="8" fill="#fff" stroke="#d4d4d8"/>
+  <text x="166" y="446" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" fill="#18181b">Task Plaza / credits</text>
+  <rect x="300" y="412" width="236" height="56" rx="8" fill="#fff" stroke="#d4d4d8"/>
+  <text x="418" y="446" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" fill="#18181b">ERC-4337 validator</text>
+  <rect x="552" y="412" width="236" height="56" rx="8" fill="#fff" stroke="#d4d4d8"/>
+  <text x="670" y="446" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" fill="#18181b">Your app / custom issuer</text>
+  <rect x="804" y="412" width="240" height="56" rx="8" fill="#fff" stroke="#d4d4d8"/>
+  <text x="924" y="446" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" fill="#18181b">Optional ticket-hash registry</text>
+  <text x="48" y="500" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#3f3f46">Deploy N verifier workers (different orgs) plus one issuer service. Not three copies of the plaza.</text>
+  <text x="48" y="522" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#3f3f46">Kernel already records verifierSet. Quorum fan-out is the DVT feature (P5 operators; P1-P3 ship the ticket shape).</text>
+  <text x="48" y="556" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#71717a">docs/Ecosystem.md</text>
+</svg>

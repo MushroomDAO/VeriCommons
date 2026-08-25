@@ -1,0 +1,10 @@
+{
+  "name": "@vericommons/contracts",
+  "private": true,
+  "description": "P3 EvidenceRegistry and 4337 ticket validator. Does not verify zkTLS.",
+  "license": "Apache-2.0",
+  "scripts": {
+    "build": "forge build",
+    "test": "forge test -vv"
+  }
+}

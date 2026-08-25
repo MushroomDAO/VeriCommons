@@ -11,4 +11,6 @@ export type TrustAssumption =
   (typeof TrustAssumption)[keyof typeof TrustAssumption];
 
 export const P1_BACKENDS = ["github-api", "public-web", "attribution"] as const;
-export type P1BackendId = (typeof P1_BACKENDS)[number];
+export const KERNEL_BACKENDS = [...P1_BACKENDS, "onchain"] as const;
+export type BackendId = (typeof KERNEL_BACKENDS)[number];
+export type P1BackendId = BackendId;

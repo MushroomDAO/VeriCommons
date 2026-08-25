@@ -1,5 +1,42 @@
 # Changes
 
+## 0.1.10 — 2026-08-25
+
+- README: honest comparison of old vs current positioning; happy path (install, `pnpm happy-path`, plaza `claim`, optional 4337).
+- Kernel example: `packages/kernel/examples/happy-path.mjs`.
+
+Possible impact: documentation and a local demo script only.
+
+---
+
+## 0.1.9 — 2026-08-25
+
+- Fixed `docs/architecture-dvt.svg` (invalid control characters broke preview). README now embeds the image.
+- README unique value: backend-agnostic customizable `issue()`, open-source prove/verify, verify as ≥3-node DVT.
+
+Possible impact: documentation only.
+
+---
+
+## 0.1.8 — 2026-08-25
+
+- Implemented P3 ERC-4337 adapters: `EvidenceTicketValidator` (UserOp allowed iff our ticket is valid), `EvidenceRegistry`, EIP-1271 `SubjectBinder`.
+- Kernel `OnchainBackend` + schema `onchain.nft.held.v1` (relayer reads chain, `issue()` stays in kernel, trust `SELF`).
+- `@vericommons/aa` off-chain gate uses the same ticket type as plaza/credits. No zkTLS in UserOp.
+- README + `docs/Ecosystem.md`: public kernel vs plaza packs; how others issue their own credentials; 2-of-3 verifier operators then one `issue()`.
+
+Possible impact: existing 4337 accounts should call the validator/paymaster adapter; do not verify vendor proofs on-chain.
+
+Build / test:
+
+```bash
+pnpm install
+pnpm test
+pnpm build
+```
+
+---
+
 ## 0.1.7 — 2026-08-25
 
 - Implemented P2 `@vericommons/task`: bind kernel tickets to `taskId`, return PASS/FAIL/PENDING, grant credits with `{ evidenceId, schema, subject, amount }`.
