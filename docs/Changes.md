@@ -1,5 +1,14 @@
 # Changes
 
+## 0.1.10 — 2026-08-25
+
+- README: honest comparison of old vs current positioning; happy path (install, `pnpm happy-path`, plaza `claim`, optional 4337).
+- Kernel example: `packages/kernel/examples/happy-path.mjs`.
+
+Possible impact: documentation and a local demo script only.
+
+---
+
 ## 0.1.9 — 2026-08-25
 
 - Fixed `docs/architecture-dvt.svg` (invalid control characters broke preview). README now embeds the image.

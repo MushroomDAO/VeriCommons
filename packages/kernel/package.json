@@ -21,7 +21,8 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "happy-path": "tsc -p tsconfig.json && node examples/happy-path.mjs"
   },
   "dependencies": {
     "ethers": "^6.15.0"
