@@ -1,0 +1,20 @@
+{
+  "schema": "attribution.qualified.v1",
+  "backend": "attribution",
+  "trust": "SELF",
+  "proofType": "RESULT_ATTRIBUTION",
+  "request": {
+    "subject": "0x3333333333333333333333333333333333333333",
+    "params": {
+      "channelId": "channel:alice:wechat",
+      "event": "signup",
+      "qualified": true
+    }
+  },
+  "claim": {
+    "channelId": "channel:alice:wechat",
+    "event": "signup",
+    "referredSubject": "0x3333333333333333333333333333333333333333",
+    "qualified": true
+  }
+}

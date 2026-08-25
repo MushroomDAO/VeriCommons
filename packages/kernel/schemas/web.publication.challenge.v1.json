@@ -1,0 +1,21 @@
+{
+  "schema": "web.publication.challenge.v1",
+  "backend": "public-web",
+  "trust": "SELF",
+  "request": {
+    "subject": "0x2222222222222222222222222222222222222222",
+    "params": {
+      "url": "https://alice.example/post",
+      "challenge": "vericommons:challenge:abc",
+      "requiredBacklink": "https://plaza.example/tasks/42"
+    }
+  },
+  "page": "<html><a href=\"https://plaza.example/tasks/42\">task</a> vericommons:challenge:abc</html>",
+  "claim": {
+    "url": "https://alice.example/post",
+    "origin": "alice.example",
+    "challenge": "vericommons:challenge:abc",
+    "requiredBacklink": "https://plaza.example/tasks/42",
+    "published": true
+  }
+}

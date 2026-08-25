@@ -1,0 +1,78 @@
+import type { P1BackendId, TrustAssumption } from "./trust.js";
+
+export const EVIDENCE_VERSION = "0.1" as const;
+
+export type SourceType = "https" | "onchain" | "issuer";
+
+export interface EvidenceSource {
+  origin: string;
+  type: SourceType;
+}
+
+export interface EvidenceRequest {
+  schema: string;
+  subject: string;
+  params: Record<string, unknown>;
+}
+
+export interface RawProof {
+  schema: string;
+  subject: string;
+  backend: P1BackendId;
+  observedAt: number;
+  payload: Record<string, unknown>;
+}
+
+export interface EvidenceClaim {
+  [key: string]: unknown;
+}
+
+export interface VerifiedEvidence {
+  readonly brand: "VerifiedEvidence";
+  version: typeof EVIDENCE_VERSION;
+  subject: string;
+  source: EvidenceSource;
+  schema: string;
+  claim: EvidenceClaim;
+  issuedAt: number;
+  validUntil: number;
+  nonce: string;
+  proof: {
+    type: string;
+    backend: P1BackendId;
+    verifierSet: string;
+    hash: string;
+    reference: string;
+  };
+  trust: {
+    assumption: TrustAssumption;
+  };
+}
+
+export interface EvidenceTicket extends Omit<VerifiedEvidence, "brand"> {
+  issuer: string;
+  signature: string;
+}
+
+export interface SchemaDefinition {
+  id: string;
+  source: EvidenceSource;
+  backend: P1BackendId;
+  proofType: string;
+  trust: TrustAssumption;
+  ttlSeconds: number;
+}
+
+export interface ProofBackend {
+  readonly id: P1BackendId;
+  prove(request: EvidenceRequest): Promise<RawProof>;
+  verify(proof: RawProof): Promise<{
+    claim: EvidenceClaim;
+    reference: string;
+    hashMaterial: Record<string, unknown>;
+  }>;
+}
+
+export interface IssuerClock {
+  now(): number;
+}

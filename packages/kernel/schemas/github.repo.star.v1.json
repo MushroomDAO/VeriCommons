@@ -1,0 +1,26 @@
+{
+  "schema": "github.repo.star.v1",
+  "backend": "github-api",
+  "trust": "SELF",
+  "request": {
+    "subject": "0x1111111111111111111111111111111111111111",
+    "params": {
+      "owner": "tlsnotary",
+      "repo": "tlsn",
+      "accessToken": "test-token"
+    }
+  },
+  "observation": {
+    "httpStatus": 204,
+    "userStatus": 200,
+    "owner": "tlsnotary",
+    "repo": "tlsn",
+    "login": "alice"
+  },
+  "claim": {
+    "owner": "tlsnotary",
+    "repo": "tlsn",
+    "starred": true,
+    "login": "alice"
+  }
+}

@@ -1,0 +1,202 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 1480" width="1280" height="1480" role="img" aria-labelledby="title desc">
+  <title id="title">VeriCommons full stack: two layers, provers, zkTLS, zkPass adapter, delayed attribution, ERC-4337</title>
+  <desc id="desc">Merged architecture. Layer 2 is the plaza wrapper. Layer 1 is the reusable kernel (prove, verify, issue). Provers include self-hosted Public Web, official APIs, zkTLS vendors, and onchain. zkPass is a vendor product adapted with a recorded trust assumption. Delayed attribution is a kernel fact, not zkTLS. ERC-4337 can consume tickets and can be an onchain source.</desc>
+  <rect width="1280" height="1480" fill="#fafafa"/>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#a1a1aa"/>
+    </marker>
+    <marker id="arrBlue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb"/>
+    </marker>
+  </defs>
+
+  <text x="40" y="32" font-family="ui-sans-serif, system-ui, sans-serif" font-size="22" font-weight="700" fill="#18181b">VeriCommons full stack</text>
+  <text x="40" y="52" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#52525b">Two layers on top. Backend-neutral provers underneath (self-host + vendor adapters). zkTLS is a technique, not our product. Delayed attribution is not zkTLS. 4337 consumes tickets and can be proven on-chain.</text>
+
+  <!-- existing -->
+  <rect x="24" y="68" width="1232" height="88" rx="10" fill="#f4f4f5" stroke="#e4e4e7"/>
+  <text x="40" y="88" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" font-weight="600" fill="#71717a">ALREADY EXIST - do not rebuild</text>
+  <rect x="48" y="100" width="280" height="42" rx="6" fill="#fff" stroke="#d4d4d8"/>
+  <text x="188" y="126" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="650" fill="#18181b">Task Plaza</text>
+  <rect x="348" y="100" width="280" height="42" rx="6" fill="#fff" stroke="#d4d4d8"/>
+  <text x="488" y="126" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="650" fill="#18181b">Credits / issuance</text>
+  <rect x="648" y="100" width="280" height="42" rx="6" fill="#fff" stroke="#d4d4d8"/>
+  <text x="788" y="126" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="650" fill="#18181b">ERC-4337 accounts</text>
+  <rect x="948" y="100" width="284" height="42" rx="6" fill="#fff" stroke="#d4d4d8"/>
+  <text x="1090" y="126" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="650" fill="#18181b">Other apps (optional)</text>
+
+  <!-- layer 2 -->
+  <rect x="24" y="172" width="1232" height="128" rx="10" fill="#ecfdf5" stroke="#059669"/>
+  <text x="40" y="192" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" font-weight="700" fill="#047857">LAYER 2  packages/task  plaza wrapper  not required to reuse the kernel</text>
+  <text x="40" y="210" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#065f46">Binds a kernel ticket to a plaza task. Owns taskId, caps, PENDING, credit hook. Does not talk to zkPass.</text>
+  <rect x="48" y="224" width="280" height="60" rx="8" fill="#fff" stroke="#059669"/>
+  <text x="188" y="248" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="700" fill="#047857">Task binding</text>
+  <text x="188" y="268" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#065f46">taskId + schema + policy</text>
+  <rect x="348" y="224" width="280" height="60" rx="8" fill="#fff" stroke="#059669"/>
+  <text x="488" y="248" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="700" fill="#047857">Completion state</text>
+  <text x="488" y="268" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#065f46">PASS / FAIL / PENDING</text>
+  <rect x="648" y="224" width="280" height="60" rx="8" fill="#fff" stroke="#059669"/>
+  <text x="788" y="248" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="700" fill="#047857">Plaza / credit glue</text>
+  <text x="788" y="268" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#065f46">our task plaza only</text>
+  <rect x="948" y="224" width="284" height="60" rx="8" fill="#fff" stroke="#059669"/>
+  <text x="1090" y="248" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="700" fill="#047857">Uses attribution tickets</text>
+  <text x="1090" y="268" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#065f46">does not own the fact</text>
+
+  <!-- layer 1 kernel -->
+  <rect x="24" y="316" width="1232" height="196" rx="10" fill="#e8eef7" stroke="#2563eb"/>
+  <text x="40" y="336" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" font-weight="700" fill="#1d4ed8">LAYER 1  packages/kernel  independent directory  same 3 steps as a zkPass-style kernel</text>
+  <text x="40" y="354" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#1e3a8a">Core value: one entry ticket, swap provers, record trust. Others can import this package without the plaza wrapper.</text>
+
+  <rect x="48" y="372" width="190" height="120" rx="8" fill="#fff" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="143" y="400" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700" fill="#1d4ed8">1  prove()</text>
+  <text x="143" y="422" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#3f3f46">collect RawProof</text>
+  <text x="143" y="440" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#3f3f46">dispatch to a prover</text>
+  <text x="143" y="464" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#71717a">not the verifier</text>
+
+  <rect x="258" y="372" width="190" height="120" rx="8" fill="#fff" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="353" y="400" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700" fill="#1d4ed8">2  verify()</text>
+  <text x="353" y="422" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#3f3f46">check source / tamper</text>
+  <text x="353" y="440" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#3f3f46">self-check or vendor SDK</text>
+  <text x="353" y="464" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#71717a">record verifierSet</text>
+
+  <rect x="468" y="372" width="190" height="120" rx="8" fill="#fff" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="563" y="400" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700" fill="#1d4ed8">3  issue()</text>
+  <text x="563" y="422" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#3f3f46">entry ticket</text>
+  <text x="563" y="440" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#3f3f46">offline Evidence</text>
+  <text x="563" y="464" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#71717a">EIP-712 / later VC</text>
+
+  <rect x="678" y="372" width="270" height="120" rx="8" fill="#ecfdf5" stroke="#059669" stroke-width="1.5"/>
+  <text x="813" y="396" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="700" fill="#047857">Attribution evidence</text>
+  <text x="813" y="418" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#065f46">fact: B qualified via channel A</text>
+  <text x="813" y="436" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#065f46">not zkTLS - result proof</text>
+  <text x="813" y="454" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#065f46">PENDING then PASS on result</text>
+  <text x="813" y="476" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#047857">kernel owns the fact; task layer uses it</text>
+
+  <rect x="968" y="372" width="264" height="120" rx="8" fill="#fff" stroke="#2563eb"/>
+  <text x="1100" y="396" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="700" fill="#1d4ed8">Onchain evidence</text>
+  <text x="1100" y="418" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#3f3f46">4337 owner / module / tx</text>
+  <text x="1100" y="436" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#3f3f46">NFT / token / event log</text>
+  <text x="1100" y="454" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#3f3f46">easiest proofs we have</text>
+  <text x="1100" y="476" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#71717a">relayer reads chain, then issue()</text>
+
+  <path d="M238 432 L258 432" stroke="#2563eb" stroke-width="1.5" marker-end="url(#arrBlue)"/>
+  <path d="M448 432 L468 432" stroke="#2563eb" stroke-width="1.5" marker-end="url(#arrBlue)"/>
+
+  <!-- provers -->
+  <rect x="24" y="528" width="1232" height="268" rx="10" fill="#f4f4f5" stroke="#e4e4e7"/>
+  <text x="40" y="548" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" font-weight="600" fill="#71717a">PROVERS  =  backend-neutral backend  =  this row. kernel.prove() dispatches here.</text>
+  <text x="40" y="566" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#3f3f46">Compatible: any engine whose verify-result we can map. Self-hosted provers do not need a vendor to cooperate. Vendor adapters trust their SDK and record verifierSet.</text>
+
+  <rect x="48" y="584" width="220" height="88" rx="8" fill="#eff6ff" stroke="#3b82f6"/>
+  <text x="158" y="610" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="700" fill="#1e40af">Our Public Web prover</text>
+  <text x="158" y="630" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#1e3a8a">open-source, we operate</text>
+  <text x="158" y="648" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#1e3a8a">fetch + challenge + backlink</text>
+  <text x="158" y="662" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#2563eb">we verify ourselves</text>
+
+  <rect x="284" y="584" width="220" height="88" rx="8" fill="#eff6ff" stroke="#3b82f6"/>
+  <text x="394" y="610" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="700" fill="#1e40af">Official API prover</text>
+  <text x="394" y="630" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#1e3a8a">GitHub / Discord OAuth</text>
+  <text x="394" y="648" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#1e3a8a">we call their API, we sign</text>
+  <text x="394" y="662" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#2563eb">trust: GitHub + our oracle</text>
+
+  <rect x="520" y="576" width="712" height="200" rx="10" fill="#fffbeb" stroke="#d97706" stroke-dasharray="5 4"/>
+  <text x="536" y="596" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" font-weight="700" fill="#b45309">zkTLS = a TECHNIQUE inside the prover row, not a VeriCommons product layer</text>
+  <text x="536" y="612" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#92400e">Several vendors implement it. We do not have to own a zkTLS stack. We can self-host TLSNotary later.</text>
+
+  <rect x="540" y="624" width="216" height="136" rx="8" fill="#fff" stroke="#d97706"/>
+  <text x="648" y="648" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="700" fill="#92400e">TLSNotary / vlayer</text>
+  <text x="648" y="668" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#78350f">self-host notary possible</text>
+  <text x="648" y="686" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#78350f">we can be the prover</text>
+  <text x="648" y="712" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#b45309">trust: our notary + TLS</text>
+  <text x="648" y="732" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#a16207">open stack we can operate</text>
+
+  <rect x="772" y="624" width="216" height="136" rx="8" fill="#fff7ed" stroke="#ea580c" stroke-width="1.5"/>
+  <text x="880" y="644" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="700" fill="#c2410c">zkPass (vendor product)</text>
+  <text x="880" y="664" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#9a3412">their zkTLS prover</text>
+  <text x="880" y="680" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#9a3412">+ their verify network</text>
+  <text x="880" y="696" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#9a3412">+ their credential / login</text>
+  <text x="880" y="720" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" font-weight="700" fill="#c2410c">we ADAPT, we do not control</text>
+  <text x="880" y="740" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#9a3412">trust their SDK verify = yes</text>
+
+  <rect x="1004" y="624" width="208" height="136" rx="8" fill="#fff7ed" stroke="#ea580c"/>
+  <text x="1108" y="648" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="700" fill="#c2410c">Reclaim (vendor)</text>
+  <text x="1108" y="668" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#9a3412">their attestor / zk-fetch</text>
+  <text x="1108" y="696" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" font-weight="700" fill="#c2410c">same pattern: adapter</text>
+  <text x="1108" y="716" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#9a3412">trust their attestor set</text>
+  <text x="1108" y="736" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#9a3412">watch AGPL on zk-fetch</text>
+
+  <!-- sources -->
+  <rect x="24" y="812" width="1232" height="88" rx="10" fill="#fff" stroke="#e4e4e7"/>
+  <text x="40" y="832" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" font-weight="600" fill="#71717a">SOURCES - facts in the world. No HTTPS endpoint = cannot use zkTLS; use delayed attribution.</text>
+  <rect x="48" y="844" width="160" height="40" rx="6" fill="#f4f4f5" stroke="#d4d4d8"/>
+  <text x="128" y="868" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#18181b">GitHub</text>
+  <rect x="220" y="844" width="160" height="40" rx="6" fill="#f4f4f5" stroke="#d4d4d8"/>
+  <text x="300" y="868" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#18181b">Public websites</text>
+  <rect x="392" y="844" width="160" height="40" rx="6" fill="#f4f4f5" stroke="#d4d4d8"/>
+  <text x="472" y="868" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#18181b">Email / SaaS HTTPS</text>
+  <rect x="564" y="844" width="160" height="40" rx="6" fill="#f4f4f5" stroke="#d4d4d8"/>
+  <text x="644" y="868" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#18181b">On-chain state</text>
+  <rect x="736" y="844" width="496" height="40" rx="6" fill="#ecfdf5" stroke="#059669"/>
+  <text x="984" y="860" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="650" fill="#047857">WeChat Moments / private channels</text>
+  <text x="984" y="876" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#065f46">no observable HTTPS - delayed path only</text>
+
+  <!-- flow + zkPass vertical -->
+  <rect x="24" y="916" width="760" height="248" rx="10" fill="#fff" stroke="#e4e4e7"/>
+  <text x="40" y="940" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="700" fill="#18181b">Flow (what the kernel always does)</text>
+  <rect x="48" y="956" width="140" height="44" rx="6" fill="#e8eef7" stroke="#93c5fd"/>
+  <text x="118" y="982" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="650" fill="#1d4ed8">prove</text>
+  <rect x="220" y="956" width="140" height="44" rx="6" fill="#e8eef7" stroke="#93c5fd"/>
+  <text x="290" y="982" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="650" fill="#1d4ed8">verify</text>
+  <rect x="392" y="956" width="140" height="44" rx="6" fill="#e8eef7" stroke="#93c5fd"/>
+  <text x="462" y="982" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="650" fill="#1d4ed8">issue ticket</text>
+  <rect x="564" y="956" width="196" height="44" rx="6" fill="#dbeafe" stroke="#2563eb"/>
+  <text x="662" y="982" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="650" fill="#1e40af">ticket to task / 4337</text>
+  <path d="M188 978 L220 978" stroke="#2563eb" stroke-width="1.5" marker-end="url(#arrBlue)"/>
+  <path d="M360 978 L392 978" stroke="#2563eb" stroke-width="1.5" marker-end="url(#arrBlue)"/>
+  <path d="M532 978 L564 978" stroke="#2563eb" stroke-width="1.5" marker-end="url(#arrBlue)"/>
+  <text x="48" y="1028" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#3f3f46">Immediate: GitHub / Public Web / zkTLS vendor - prove now - verify now - issue - PASS</text>
+  <text x="48" y="1048" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#3f3f46">Delayed: no prover can fetch Moments - skip zk - PENDING + channel id - later result - issue - PASS</text>
+  <text x="48" y="1076" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="650" fill="#18181b">Vendor adapter trust</text>
+  <text x="48" y="1096" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#3f3f46">We cannot re-run their TLS. After their SDK says OK, we issue OUR ticket</text>
+  <text x="48" y="1114" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#3f3f46">with verifierSet = zkPass (or Reclaim). Explicit trust assumption, recorded.</text>
+  <text x="48" y="1140" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#3f3f46">Could we build a zkPass-like login product on the kernel? Yes, by adding our zkTLS + UX. Not required for the plaza.</text>
+
+  <rect x="800" y="916" width="456" height="248" rx="10" fill="#fff7ed" stroke="#ea580c"/>
+  <text x="820" y="940" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="700" fill="#9a3412">zkPass as a vertical product</text>
+  <text x="820" y="958" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#9a3412">Same 3 steps, bundled with their engine + app. We plug in at verify-result, not inside their TLS.</text>
+  <rect x="828" y="972" width="400" height="32" rx="6" fill="#fff" stroke="#fdba74"/>
+  <text x="1028" y="992" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#9a3412">their app: login / email pass</text>
+  <rect x="828" y="1012" width="400" height="32" rx="6" fill="#fff" stroke="#fdba74"/>
+  <text x="1028" y="1032" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#9a3412">their issue: zkPass credential</text>
+  <rect x="828" y="1052" width="400" height="32" rx="6" fill="#fff" stroke="#fdba74"/>
+  <text x="1028" y="1072" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#9a3412">their verify: TransGate SDK</text>
+  <rect x="828" y="1092" width="400" height="32" rx="6" fill="#fff" stroke="#fdba74"/>
+  <text x="1028" y="1112" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#9a3412">their prove: 3P-TLS zkTLS</text>
+  <text x="828" y="1144" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#9a3412">Adapter maps that verify-result into kernel.issue().</text>
+
+  <!-- 4337 -->
+  <rect x="24" y="1180" width="608" height="276" rx="10" fill="#fff" stroke="#2563eb"/>
+  <text x="44" y="1206" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700" fill="#1d4ed8">Arrow A - 4337 CONSUMES a ticket</text>
+  <text x="44" y="1228" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#3f3f46">Possible. Offline Evidence can replace some login / policy checks.</text>
+  <text x="44" y="1254" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#18181b">1. Kernel issue() signed Evidence (offline, validUntil)</text>
+  <text x="44" y="1274" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#18181b">2. Optional: anchor hash on-chain</text>
+  <text x="44" y="1294" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#18181b">3. Validator / paymaster / session key checks it</text>
+  <text x="44" y="1320" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#3f3f46">Chain must NOT verify a full zkTLS blob in UserOp.</text>
+  <text x="44" y="1340" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#3f3f46">It checks issuer signature or a stored ticket hash.</text>
+  <text x="44" y="1364" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#3f3f46">Replaces some policy. Does not replace UserOp signature.</text>
+  <text x="44" y="1388" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#1e3a8a">Standard vs custom 4337: same kernel, different module.</text>
+  <text x="44" y="1420" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#3f3f46">Web2 fact stays off-chain. 4337 only sees the entry ticket.</text>
+
+  <rect x="648" y="1180" width="608" height="276" rx="10" fill="#fff" stroke="#059669"/>
+  <text x="668" y="1206" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700" fill="#047857">Arrow B - 4337 is a SOURCE of facts</text>
+  <text x="668" y="1228" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#065f46">Possible. Web3 credentials are the easy proofs.</text>
+  <text x="668" y="1254" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#18181b">Onchain prover reads owner, module, UserOp, token/NFT, logs.</text>
+  <text x="668" y="1274" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#18181b">A relayer reads chain state; kernel.issue() the ticket.</text>
+  <text x="668" y="1294" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#18181b">Account may EIP-1271-sign subject binding (control, not GitHub).</text>
+  <text x="668" y="1324" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="700" fill="#b45309">Impossible inside the contract</text>
+  <text x="668" y="1344" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#92400e">HTTPS, GitHub, WeChat, zkPass TLS session.</text>
+  <text x="668" y="1364" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#92400e">Contracts cannot fetch Web2. Bind Web2 tickets via Arrow A.</text>
+  <text x="668" y="1396" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#065f46">The account does not generate zkTLS. It is a subject and a signer.</text>
+  <text x="668" y="1420" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#065f46">Custom 4337 vs standard: same. Difference is validator modules.</text>
+</svg>

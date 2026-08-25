@@ -1,0 +1,5 @@
+{
+  "snapshot": "populate",
+  "install": "pnpm install",
+  "terminals": []
+}
