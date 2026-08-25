@@ -86,6 +86,8 @@ describe("P1 kernel", () => {
     expect(ticket.issuer).toBe(signer.address);
     expect(ticket.signature).toMatch(/^0x/);
     expect("brand" in ticket).toBe(false);
+    expect(verified.proof.rawProofHash).toMatch(/^0x/);
+    expect("rawProofHash" in ticket.proof).toBe(false);
     assertTicketSignature(ticket, signer.address);
     expect(recoverTicketIssuer(ticket).toLowerCase()).toBe(signer.address.toLowerCase());
   });

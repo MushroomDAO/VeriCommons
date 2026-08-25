@@ -212,4 +212,23 @@ describe("AirAccount KMS signer", () => {
       ),
     ).rejects.toMatchObject({ code: "SIGN" });
   });
+
+  it("rejects a KMS 2xx body of null with KmsError", async () => {
+    const signer = new AirAccountKmsSigner({
+      url: "https://kms.aastar.io",
+      apiKey: "test-key",
+      keyId: "wallet-uuid",
+      issuerAddress: Wallet.createRandom().address,
+      agentJwt: "agent.jwt",
+      hdPath: "m/44'/60'/0'/1/0",
+      fetchImpl: (async () => new Response("null", { status: 200 })) as typeof fetch,
+    });
+    await expect(
+      signer.signTypedData(
+        { name: "VeriCommons", version: "0.1", chainId: 1, verifyingContract: "0x0000000000000000000000000000000000000000" },
+        { Mail: [{ name: "contents", type: "string" }] },
+        { contents: "hello" },
+      ),
+    ).rejects.toMatchObject({ code: "SIGN", message: "KMS response missing signature" });
+  });
 });

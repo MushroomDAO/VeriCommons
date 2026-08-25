@@ -5,8 +5,11 @@ import { VERIFIER_TOKEN_HEADER } from "./http-verifier.js";
 
 const MAX_BODY = 64 * 1024;
 
+/** Kernel Verifier whose verify() result must include proof.rawProofHash. */
+export type AttestingVerifier = Verifier;
+
 export interface VerifierServerOptions {
-  verifier: Verifier;
+  verifier: AttestingVerifier;
   /** Shared secret. POST /verify is rejected without it. GET /health stays open. */
   token: string;
 }
@@ -28,7 +31,7 @@ export function createVerifierServer(opts: VerifierServerOptions): Server {
 async function handleRequest(
   req: IncomingMessage,
   res: ServerResponse,
-  verifier: Verifier,
+  verifier: AttestingVerifier,
   expectedToken: Buffer,
 ): Promise<void> {
   let url: URL;

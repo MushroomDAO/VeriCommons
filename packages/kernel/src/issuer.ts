@@ -35,7 +35,7 @@ export class TicketIssuer implements Issuer {
       throw new KernelError("NOT_VERIFIED", "issue() only accepts VerifiedEvidence from verify()");
     }
     const { rawProofHash: _rawProofHash, ...proof } = verified.proof;
-    const resolved: VerifiedEvidence = {
+    const resolved = {
       ...verified,
       proof: {
         ...proof,
@@ -63,18 +63,17 @@ export class TicketIssuer implements Issuer {
   }
 }
 
-export function ticketTypedValue(ticket: Pick<
-  VerifiedEvidence,
-  | "version"
-  | "subject"
-  | "schema"
-  | "claim"
-  | "issuedAt"
-  | "validUntil"
-  | "nonce"
-  | "proof"
-  | "trust"
->) {
+export function ticketTypedValue(ticket: {
+  version: string;
+  subject: string;
+  schema: string;
+  claim: Record<string, unknown>;
+  issuedAt: number;
+  validUntil: number;
+  nonce: string;
+  proof: { backend: string; verifierSet: string };
+  trust: { assumption: string };
+}) {
   return {
     version: ticket.version,
     subject: ticket.subject,

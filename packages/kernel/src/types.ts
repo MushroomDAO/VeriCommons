@@ -43,15 +43,16 @@ export interface VerifiedEvidence {
     verifierSet: string;
     hash: string;
     reference: string;
-    /** HTTP-only binding of the RawProof that was verified. Never signed onto tickets. */
-    rawProofHash?: string;
+    /** Digest of the RawProof that was verified. Stripped before signing tickets. */
+    rawProofHash: string;
   };
   trust: {
     assumption: TrustAssumption;
   };
 }
 
-export interface EvidenceTicket extends Omit<VerifiedEvidence, "brand"> {
+export interface EvidenceTicket extends Omit<VerifiedEvidence, "brand" | "proof"> {
+  proof: Omit<VerifiedEvidence["proof"], "rawProofHash">;
   issuer: string;
   signature: string;
 }

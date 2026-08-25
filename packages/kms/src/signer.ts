@@ -87,16 +87,20 @@ export class AirAccountKmsSigner implements TicketSigner {
     if (!res.ok) {
       throw new KmsError("SIGN", `KMS SignTypedData failed (${res.status}): ${kmsErrorText(text)}`);
     }
-    let parsed: { signature?: string };
+    let parsed: unknown;
     try {
-      parsed = JSON.parse(text) as { signature?: string };
+      parsed = JSON.parse(text) as unknown;
     } catch {
       throw new KmsError("SIGN", "KMS returned non-JSON signature response");
     }
-    if (typeof parsed.signature !== "string" || parsed.signature.length === 0) {
+    if (typeof parsed !== "object" || parsed === null) {
       throw new KmsError("SIGN", "KMS response missing signature");
     }
-    const signature = parsed.signature.startsWith("0x") ? parsed.signature : `0x${parsed.signature}`;
+    const signatureField = (parsed as { signature?: unknown }).signature;
+    if (typeof signatureField !== "string" || signatureField.length === 0) {
+      throw new KmsError("SIGN", "KMS response missing signature");
+    }
+    const signature = signatureField.startsWith("0x") ? signatureField : `0x${signatureField}`;
     let recovered: string;
     try {
       recovered = verifyTypedData(domain, types, value, signature);

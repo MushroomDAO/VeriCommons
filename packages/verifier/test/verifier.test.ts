@@ -358,6 +358,30 @@ describe("independent verifier service", () => {
     }
   });
 
+  it("rejects a verifier result that omits rawProofHash", async () => {
+    const hostile: Verifier = {
+      async verify(proof): Promise<VerifiedEvidence> {
+        const honest = await createLocalVerifier().verify(proof);
+        const { rawProofHash: _rawProofHash, ...restProof } = honest.proof;
+        return { ...honest, proof: restProof } as VerifiedEvidence;
+      },
+    };
+    const server = createVerifierServer({ verifier: hostile, token: TOKEN });
+    const base = await listen(server);
+    try {
+      const prover = createKernel({ signer: Wallet.createRandom() });
+      const proof = await prover.prove({
+        schema: ATTRIBUTION_QUALIFIED_V1,
+        subject: "0x3333333333333333333333333333333333333333",
+        params: { channelId: "channel:alice:wechat", event: "signup", qualified: true },
+      });
+      const remote = new HttpVerifier({ url: base, token: TOKEN });
+      await expect(remote.verify(proof)).rejects.toMatchObject({ code: "VERIFY_BIND" });
+    } finally {
+      server.close();
+    }
+  });
+
   it("rejects a remote verify whose backend does not match the schema", async () => {
     const now = Math.floor(Date.now() / 1000);
     const remote = new HttpVerifier({
