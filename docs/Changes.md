@@ -1,5 +1,13 @@
 # Changes
 
+## 0.1.11 — 2026-08-25
+
+- Production TODO as T1–T3 layered slices: hosted issuer (KMS, auth, replay, audit, independent verify), live credits/4337 + more GitHub schemas, then P4/P5. See `docs/plan/T-production.md`.
+
+Possible impact: documentation only. Implement T1.1 next, not T3 first.
+
+---
+
 ## 0.1.10 — 2026-08-25
 
 - README: honest comparison of old vs current positioning; happy path (install, `pnpm happy-path`, plaza `claim`, optional 4337).

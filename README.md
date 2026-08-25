@@ -121,8 +121,9 @@ Three verifier operators, 2-of-3, then `issue()`: [Ecosystem](docs/Ecosystem.md)
 | P3 | 4337 + onchain prover | stacked on P2 |
 | P4 | Vendor adapters | not started |
 | P5 | Run ≥3-node verify | not started |
+| T1–T3 | Production: hosted issuer → live ledgers → vendors/DVT | [plan](docs/plan/T-production.md) |
 
 - [Architecture](docs/Architecture.md) · [full stack](docs/architecture-full.svg)
 - [Ecosystem / DVT](docs/Ecosystem.md) · [DVT diagram](docs/architecture-dvt.svg)
-- [Milestones](docs/plan/README.md) · [Changes](docs/Changes.md)
+- [Milestones](docs/plan/README.md) · [Production TODO](docs/plan/T-production.md) · [Changes](docs/Changes.md)
 - [Solution](docs/Solution.md) (do not overwrite)

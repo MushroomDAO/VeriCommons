@@ -18,8 +18,9 @@ Verify starts **centralized (honest about it)**, then moves to **decentralized**
 | [P3](./P3-4337.md) | ERC-4337 | Account consumes tickets; onchain prover for account facts |
 | [P4](./P4-vendor-adapters.md) | Vendor adapters | zkPass / Reclaim / zkEmail / TLSNotary adapters; still our issue() |
 | [P5](./P5-decentralized-verify.md) | Decentralized verify | Multi-verifier then N-of-M / onchain check |
+| [T1–T3](./T-production.md) | Production | Hosted issuer, live ledgers, vendors + 3-node verify |
 
-Do not skip P1. P2 and P3 can overlap after tickets exist. P4 is optional per task type. P5 does not block plaza launch.
+Do not skip P1. P2 and P3 can overlap after tickets exist. P4 is optional per task type. P5 does not block plaza launch. **T1 is required before calling the stack production.**
 
 Also: [tech stack](./tech-stack.md) · [Cloud Agent](./cursor-cloud.md) · [vendor clones](../../vendor/README.md) · [Ecosystem / DVT](../Ecosystem.md)
 
