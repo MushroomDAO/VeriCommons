@@ -64,6 +64,22 @@ describe("AirAccount KMS signer", () => {
     expect(encoded.domain.chainId).toBe(1);
   });
 
+  it("selects the EIP-712 root type when a dependency is declared first", () => {
+    const encoded = toKmsTypedData(
+      { name: "Mail", version: "1", chainId: 1, verifyingContract: "0x0000000000000000000000000000000000000000" },
+      {
+        Person: [{ name: "name", type: "string" }],
+        Mail: [
+          { name: "from", type: "Person" },
+          { name: "contents", type: "string" },
+        ],
+      },
+      { from: { name: "alice" }, contents: "hello" },
+    );
+    expect(encoded.primaryType).toBe("Mail");
+    expect(encoded.message.map((field) => field.name)).toEqual(["from", "contents"]);
+  });
+
   it("signs an EvidenceTicket through POST /kms/SignTypedData without a local key", async () => {
     const wallet = Wallet.createRandom();
     const signer = new AirAccountKmsSigner({

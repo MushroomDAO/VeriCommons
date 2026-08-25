@@ -13,6 +13,7 @@ export const VERIFIER_TOKEN_HEADER = "x-vericommons-token";
 
 const BACKEND_VALUES = new Set<string>(KERNEL_BACKENDS);
 const SOURCE_TYPES = new Set(["https", "onchain", "issuer"]);
+const CLOCK_SKEW_SECONDS = 300;
 
 export interface HttpVerifierOptions {
   /** Origin of the verifier process, e.g. http://127.0.0.1:8787 */
@@ -143,6 +144,19 @@ export function bindVerifiedEvidence(parsed: unknown, proof: RawProof): Verified
   const schema = getSchema(proof.schema);
   if (trust.assumption !== schema.trust) {
     throw new KernelError("VERIFY_BIND", "verified.trust.assumption does not match the schema");
+  }
+  if (proofOut.type !== schema.proofType) {
+    throw new KernelError("VERIFY_BIND", "verified.proof.type does not match the schema");
+  }
+  if (source.origin !== schema.source.origin || source.type !== schema.source.type) {
+    throw new KernelError("VERIFY_BIND", "verified.source does not match the schema");
+  }
+  const now = Math.floor(Date.now() / 1000);
+  if (Math.abs(raw.issuedAt - now) > CLOCK_SKEW_SECONDS) {
+    throw new KernelError("VERIFY_HTTP", "verified.issuedAt is outside the allowed clock skew");
+  }
+  if (raw.validUntil !== raw.issuedAt + schema.ttlSeconds) {
+    throw new KernelError("VERIFY_HTTP", "verified.validUntil does not match the schema ttl");
   }
   const { rawProofHash: _rawProofHash, ...restProof } = proofOut;
   return {

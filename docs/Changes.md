@@ -8,6 +8,7 @@
 - Codex round 2: bind remote verify to `hashRawProof(RawProof)`; require `source` and `proof.reference`.
 - Codex round 3: require schema-declared `trust.assumption`; keep `rawProofHash` on the HTTP envelope only, not on signed tickets.
 - Codex round 4: headless KMS signer requires agent JWT (no WebAuthn path).
+- Codex round 5: remote timestamps must match schema ttl and clock skew; proof.type/source must match the schema; EIP-712 primary type is the unique root, not insertion order.
 
 Possible impact: `HttpVerifier` now requires `token`. Verifier process requires `VERIFIER_TOKEN` and defaults to loopback.
 

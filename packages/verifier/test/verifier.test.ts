@@ -255,6 +255,56 @@ describe("independent verifier service", () => {
     }
   });
 
+  it("rejects a remote verify with a far-future validity window", async () => {
+    const hostile: Verifier = {
+      async verify(proof): Promise<VerifiedEvidence> {
+        const honest = await createLocalVerifier().verify(proof);
+        return { ...honest, issuedAt: 0, validUntil: 9999999999 };
+      },
+    };
+    const server = createVerifierServer({ verifier: hostile, token: TOKEN });
+    const base = await listen(server);
+    try {
+      const prover = createKernel({ signer: Wallet.createRandom() });
+      const proof = await prover.prove({
+        schema: ATTRIBUTION_QUALIFIED_V1,
+        subject: "0x3333333333333333333333333333333333333333",
+        params: { channelId: "channel:alice:wechat", event: "signup", qualified: true },
+      });
+      const remote = new HttpVerifier({ url: base, token: TOKEN });
+      await expect(remote.verify(proof)).rejects.toMatchObject({ code: "VERIFY_HTTP" });
+    } finally {
+      server.close();
+    }
+  });
+
+  it("rejects a remote verify that swaps schema proof type or source", async () => {
+    const hostile: Verifier = {
+      async verify(proof): Promise<VerifiedEvidence> {
+        const honest = await createLocalVerifier().verify(proof);
+        return {
+          ...honest,
+          source: { origin: "api.github.com", type: "https" },
+          proof: { ...honest.proof, type: "SIGNED_API" },
+        };
+      },
+    };
+    const server = createVerifierServer({ verifier: hostile, token: TOKEN });
+    const base = await listen(server);
+    try {
+      const prover = createKernel({ signer: Wallet.createRandom() });
+      const proof = await prover.prove({
+        schema: ATTRIBUTION_QUALIFIED_V1,
+        subject: "0x3333333333333333333333333333333333333333",
+        params: { channelId: "channel:alice:wechat", event: "signup", qualified: true },
+      });
+      const remote = new HttpVerifier({ url: base, token: TOKEN });
+      await expect(remote.verify(proof)).rejects.toMatchObject({ code: "VERIFY_BIND" });
+    } finally {
+      server.close();
+    }
+  });
+
   it("maps a non-object JSON error body to KernelError", async () => {
     const remote = new HttpVerifier({
       url: "http://verifier.test",

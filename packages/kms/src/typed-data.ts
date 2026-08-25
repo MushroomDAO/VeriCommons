@@ -49,7 +49,7 @@ export function toKmsTypedData(
   primaryType?: string,
 ): Pick<KmsSignTypedDataBody, "domain" | "primaryType" | "types" | "message"> {
   const typeNames = Object.keys(types).filter((name) => !PRIMARY_SKIP.has(name));
-  const resolvedPrimary = primaryType ?? typeNames[0];
+  const resolvedPrimary = primaryType ?? eip712PrimaryType(types, typeNames);
   if (!resolvedPrimary) {
     throw new KmsError("TYPED_DATA", "typed data has no primary type");
   }
@@ -75,6 +75,27 @@ export function toKmsTypedData(
       value: encodeKmsValue(field.type, value[field.name]),
     })),
   };
+}
+
+function eip712PrimaryType(
+  types: Record<string, Array<{ name: string; type: string }>>,
+  typeNames: string[],
+): string | undefined {
+  const declared = new Set(typeNames);
+  const referenced = new Set<string>();
+  for (const name of typeNames) {
+    for (const field of types[name] ?? []) {
+      const base = field.type.replace(/\[\d*\]$/u, "");
+      if (declared.has(base) && base !== name) {
+        referenced.add(base);
+      }
+    }
+  }
+  const roots = typeNames.filter((name) => !referenced.has(name));
+  if (roots.length !== 1) {
+    throw new KmsError("TYPED_DATA", "typed data has no unique primary type");
+  }
+  return roots[0];
 }
 
 function encodeKmsValue(solType: string, raw: unknown): unknown {
