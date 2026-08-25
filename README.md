@@ -65,7 +65,7 @@ import { HttpVerifier } from "@vericommons/verifier";
 const kernel = createKernel({
   signer: airAccountSignerFromEnv(),
   verifier: process.env.VERIFIER_URL
-    ? new HttpVerifier({ url: process.env.VERIFIER_URL })
+    ? new HttpVerifier({ url: process.env.VERIFIER_URL, token: process.env.VERIFIER_TOKEN! })
     : undefined,
 });
 ```

@@ -200,4 +200,26 @@ describe("P1 kernel", () => {
     const verified = await kernel.verify(proof);
     expect(verified.proof.verifierSet).toBe("injected-worker");
   });
+
+  it("signs the fallback verifierSet so the ticket body matches the signature", async () => {
+    const inner = createLocalVerifier();
+    const signer = Wallet.createRandom();
+    const kernel = createKernel({
+      signer,
+      verifier: {
+        async verify(proof) {
+          const out = await inner.verify(proof);
+          return { ...out, proof: { ...out.proof, verifierSet: "" } };
+        },
+      },
+    });
+    const proof = await kernel.prove({
+      schema: ATTRIBUTION_QUALIFIED_V1,
+      subject: "0x3333333333333333333333333333333333333333",
+      params: { channelId: "channel:alice:wechat", event: "signup", qualified: true },
+    });
+    const ticket = await kernel.issue(await kernel.verify(proof));
+    expect(ticket.proof.verifierSet).toBe("vericommons-kernel");
+    assertTicketSignature(ticket, signer.address);
+  });
 });

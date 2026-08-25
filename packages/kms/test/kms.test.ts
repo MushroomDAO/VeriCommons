@@ -146,4 +146,24 @@ describe("AirAccount KMS signer", () => {
     });
     expect(signer).toBeInstanceOf(AirAccountKmsSigner);
   });
+
+  it("rejects a KMS signature that does not match issuerAddress", async () => {
+    const wallet = Wallet.createRandom();
+    const signer = new AirAccountKmsSigner({
+      url: "https://kms.aastar.io",
+      apiKey: "test-key",
+      keyId: "wallet-uuid",
+      issuerAddress: Wallet.createRandom().address,
+      agentJwt: "agent.jwt",
+      hdPath: "m/44'/60'/0'/1/0",
+      fetchImpl: fakeAirAccountKms(wallet),
+    });
+    await expect(
+      signer.signTypedData(
+        { name: "VeriCommons", version: "0.1", chainId: 1, verifyingContract: "0x0000000000000000000000000000000000000000" },
+        { Mail: [{ name: "contents", type: "string" }] },
+        { contents: "hello" },
+      ),
+    ).rejects.toMatchObject({ code: "SIGN" });
+  });
 });

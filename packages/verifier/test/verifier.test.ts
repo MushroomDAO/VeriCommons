@@ -6,8 +6,12 @@ import {
   createKernel,
   createLocalVerifier,
   type RawProof,
+  type VerifiedEvidence,
+  type Verifier,
 } from "@vericommons/kernel";
-import { createVerifierServer, HttpVerifier } from "../src/index.js";
+import { createVerifierServer, HttpVerifier, VERIFIER_TOKEN_HEADER } from "../src/index.js";
+
+const TOKEN = "test-verifier-token";
 
 async function listen(server: Server): Promise<string> {
   await new Promise<void>((resolve) => {
@@ -24,6 +28,7 @@ describe("independent verifier service", () => {
   it("GET /health and POST /verify over HTTP", async () => {
     const server = createVerifierServer({
       verifier: createLocalVerifier({ verifierSet: "remote-worker" }),
+      token: TOKEN,
     });
     const base = await listen(server);
     try {
@@ -37,7 +42,7 @@ describe("independent verifier service", () => {
         subject: "0x3333333333333333333333333333333333333333",
         params: { channelId: "channel:alice:wechat", event: "signup", qualified: true },
       });
-      const remote = new HttpVerifier({ url: base });
+      const remote = new HttpVerifier({ url: base, token: TOKEN });
       const verified = await remote.verify(proof);
       expect(verified.brand).toBe("VerifiedEvidence");
       expect(verified.proof.verifierSet).toBe("remote-worker");
@@ -49,13 +54,14 @@ describe("independent verifier service", () => {
   it("lets Kernel prove locally, verify remotely, issue locally", async () => {
     const server = createVerifierServer({
       verifier: createLocalVerifier({ verifierSet: "remote-worker" }),
+      token: TOKEN,
     });
     const base = await listen(server);
     try {
       const signer = Wallet.createRandom();
       const kernel = createKernel({
         signer,
-        verifier: new HttpVerifier({ url: base }),
+        verifier: new HttpVerifier({ url: base, token: TOKEN }),
       });
       const proof = await kernel.prove({
         schema: ATTRIBUTION_QUALIFIED_V1,
@@ -73,6 +79,7 @@ describe("independent verifier service", () => {
   it("maps KernelError from the remote process", async () => {
     const server = createVerifierServer({
       verifier: createLocalVerifier(),
+      token: TOKEN,
     });
     const base = await listen(server);
     try {
@@ -82,7 +89,7 @@ describe("independent verifier service", () => {
         subject: "0x3333333333333333333333333333333333333333",
         params: { channelId: "channel:alice:wechat", event: "signup", qualified: false },
       });
-      const remote = new HttpVerifier({ url: base });
+      const remote = new HttpVerifier({ url: base, token: TOKEN });
       await expect(remote.verify(proof)).rejects.toMatchObject({ code: "NOT_QUALIFIED" });
     } finally {
       server.close();
@@ -90,15 +97,59 @@ describe("independent verifier service", () => {
   });
 
   it("rejects a non-proof body", async () => {
-    const server = createVerifierServer({ verifier: createLocalVerifier() });
+    const server = createVerifierServer({ verifier: createLocalVerifier(), token: TOKEN });
+    const base = await listen(server);
+    try {
+      const res = await fetch(`${base}/verify`, {
+        method: "POST",
+        headers: { "content-type": "application/json", [VERIFIER_TOKEN_HEADER]: TOKEN },
+        body: JSON.stringify({ hello: "no" }),
+      });
+      expect(res.status).toBe(400);
+    } finally {
+      server.close();
+    }
+  });
+
+  it("rejects POST /verify without the shared token", async () => {
+    const server = createVerifierServer({ verifier: createLocalVerifier(), token: TOKEN });
     const base = await listen(server);
     try {
       const res = await fetch(`${base}/verify`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ hello: "no" }),
+        body: JSON.stringify({
+          schema: ATTRIBUTION_QUALIFIED_V1,
+          subject: "0x1",
+          backend: "attribution",
+          observedAt: 1,
+          payload: {},
+        }),
       });
-      expect(res.status).toBe(400);
+      expect(res.status).toBe(401);
+    } finally {
+      server.close();
+    }
+  });
+
+  it("rejects a remote verify that swaps subject", async () => {
+    const hostile: Verifier = {
+      async verify(proof): Promise<VerifiedEvidence> {
+        const honest = await createLocalVerifier().verify(proof);
+        return { ...honest, subject: "0xATTACKER" };
+      },
+    };
+    const server = createVerifierServer({ verifier: hostile, token: TOKEN });
+    const base = await listen(server);
+    try {
+      const prover = createKernel({ signer: Wallet.createRandom() });
+      const proof = await prover.prove({
+        schema: ATTRIBUTION_QUALIFIED_V1,
+        subject: "0x3333333333333333333333333333333333333333",
+        params: { channelId: "channel:alice:wechat", event: "signup", qualified: true },
+      });
+      const remote = new HttpVerifier({ url: base, token: TOKEN });
+      await expect(remote.verify(proof)).rejects.toMatchObject({ code: "VERIFY_BIND" });
     } finally {
       server.close();
     }

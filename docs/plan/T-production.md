@@ -26,11 +26,11 @@ flowchart TB
 
 ## T1 — Hosted issuer (library → service)
 
-**Gap today:** hosted `prove`/`issue` API still missing auth, replay, audit. T1.1 KMS client and T1.5 process-split verifier exist; GitHub still cannot independently re-fetch (token stripped).
+**Gap today:** hosted `prove`/`issue` API still missing auth, replay, audit. KMS **client** and T1.5 process-split verifier exist; live AirAccount round-trip and GitHub re-fetch are not done.
 
 | ID | Slice | Done when |
 | --- | --- | --- |
-| T1.1 | Issuer key in **AirAccount online KMS** (`https://kms.aastar.io`, `POST /kms/SignTypedData`). Process never sees raw key on disk. | `issue()` signs via `@vericommons/kms`; rotate by rotating agent JWT / keyId |
+| T1.1 | Issuer key in **AirAccount online KMS** (`https://kms.aastar.io`, `POST /kms/SignTypedData`). Process never sees raw key on disk. Client in `@vericommons/kms`; live endpoint not yet validated. | `issue()` signs via KMS against a live key; rotate by rotating agent JWT / keyId |
 | T1.2 | Auth gateway in front of `prove` / `issue` (m2m for plaza, user token where needed) | Unauthenticated callers cannot mint tickets |
 | T1.3 | Replay + rate limit: persist nonce, reject reuse, per-subject and per-IP caps | Duplicate `prove`/`issue` fails closed |
 | T1.4 | Audit: who requested which schema/subject, ticket hash, verify result, no secrets in logs | Can answer “who issued this nonce” |
@@ -71,7 +71,7 @@ flowchart TB
 
 ## Checklist (do in order)
 
-- [x] T1.1 KMS/HSM issuer (AirAccount `POST /kms/SignTypedData`, `@vericommons/kms`)
+- [ ] T1.1 KMS/HSM issuer (AirAccount client written; not yet validated against live `kms.aastar.io`)
 - [ ] T1.2 Auth gateway
 - [ ] T1.3 Replay + rate limit
 - [ ] T1.4 Audit log

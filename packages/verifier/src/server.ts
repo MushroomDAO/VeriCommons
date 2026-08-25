@@ -1,25 +1,42 @@
+import { timingSafeEqual } from "node:crypto";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import { KernelError, type RawProof, type Verifier } from "@vericommons/kernel";
+import { VERIFIER_TOKEN_HEADER } from "./http-verifier.js";
 
 const MAX_BODY = 64 * 1024;
 
 export interface VerifierServerOptions {
   verifier: Verifier;
+  /** Shared secret. POST /verify is rejected without it. GET /health stays open. */
+  token: string;
 }
 
 export function createVerifierServer(opts: VerifierServerOptions): Server {
+  if (!opts.token) {
+    throw new KernelError("VERIFY_AUTH", "verifier token is required");
+  }
+  const expected = Buffer.from(opts.token, "utf8");
   return createServer((req, res) => {
-    void handleRequest(req, res, opts.verifier);
+    void handleRequest(req, res, opts.verifier, expected);
   });
 }
 
-async function handleRequest(req: IncomingMessage, res: ServerResponse, verifier: Verifier): Promise<void> {
+async function handleRequest(
+  req: IncomingMessage,
+  res: ServerResponse,
+  verifier: Verifier,
+  expectedToken: Buffer,
+): Promise<void> {
   const url = new URL(req.url ?? "/", "http://verifier.local");
   if (req.method === "GET" && url.pathname === "/health") {
     writeJson(res, 200, { ok: true });
     return;
   }
   if (req.method === "POST" && url.pathname === "/verify") {
+    if (!tokenMatches(headerValue(req, VERIFIER_TOKEN_HEADER), expectedToken)) {
+      writeJson(res, 401, { error: { code: "VERIFY_AUTH", message: "invalid verifier token" } });
+      return;
+    }
     try {
       const proof = await readJson(req);
       if (!isRawProof(proof)) {
@@ -39,6 +56,26 @@ async function handleRequest(req: IncomingMessage, res: ServerResponse, verifier
     return;
   }
   writeJson(res, 404, { error: { code: "NOT_FOUND", message: "use GET /health or POST /verify" } });
+}
+
+function headerValue(req: IncomingMessage, name: string): string {
+  const raw = req.headers[name];
+  if (typeof raw === "string") {
+    return raw;
+  }
+  if (Array.isArray(raw) && typeof raw[0] === "string") {
+    return raw[0];
+  }
+  return "";
+}
+
+function tokenMatches(got: string, expected: Buffer): boolean {
+  const provided = Buffer.from(got, "utf8");
+  if (provided.length !== expected.length) {
+    timingSafeEqual(expected, expected);
+    return false;
+  }
+  return timingSafeEqual(provided, expected);
 }
 
 function isRawProof(value: unknown): value is RawProof {

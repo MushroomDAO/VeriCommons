@@ -1,4 +1,5 @@
 import type { TicketSigner } from "@vericommons/kernel";
+import { verifyTypedData } from "ethers";
 import { KmsError } from "./errors.js";
 import { toKmsTypedData, type KmsSignTypedDataBody } from "./typed-data.js";
 
@@ -96,7 +97,17 @@ export class AirAccountKmsSigner implements TicketSigner {
     if (typeof parsed.signature !== "string" || parsed.signature.length === 0) {
       throw new KmsError("SIGN", "KMS response missing signature");
     }
-    return parsed.signature.startsWith("0x") ? parsed.signature : `0x${parsed.signature}`;
+    const signature = parsed.signature.startsWith("0x") ? parsed.signature : `0x${parsed.signature}`;
+    let recovered: string;
+    try {
+      recovered = verifyTypedData(domain, types, value, signature);
+    } catch {
+      throw new KmsError("SIGN", "KMS signature is not valid EIP-712");
+    }
+    if (recovered.toLowerCase() !== this.issuerAddress.toLowerCase()) {
+      throw new KmsError("SIGN", "KMS signature does not match issuerAddress");
+    }
+    return signature;
   }
 }
 

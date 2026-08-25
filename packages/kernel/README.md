@@ -17,7 +17,7 @@ const verified = await kernel.verify(proof);
 const ticket = await kernel.issue(verified); // entry ticket; we always issue
 ```
 
-Production signer is `@vericommons/kms` (AirAccount `POST /kms/SignTypedData`). Production verify can be `@vericommons/verifier` over HTTP (`createKernel({ verifier: new HttpVerifier({ url }) })`).
+Production signer is `@vericommons/kms` (AirAccount `POST /kms/SignTypedData`). Production verify can be `@vericommons/verifier` over HTTP (`createKernel({ verifier: new HttpVerifier({ url, token }) })`).
 
 P1 schemas: `github.repo.star.v1`, `web.publication.challenge.v1`, `attribution.qualified.v1`.
 

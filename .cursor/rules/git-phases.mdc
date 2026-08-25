@@ -1,5 +1,5 @@
 ---
-description: Always commit phase work and open stacked PRs; never self-merge.
+description: Always commit phase work and open stacked PRs; never self-merge without external APPROVE.
 alwaysApply: true
 ---
 
@@ -11,3 +11,20 @@ When a planned phase (P1–P5) or a requested implementation is done and tests p
 2. Push an independent branch and open a PR. Wait for **external review**. Never merge the PR yourself.
 3. Keep earlier phase PRs open. Do not merge them into `main` to “clean up”.
 4. Start the next phase from the latest phase branch. Open a **stacked PR** whose base is that branch (not `main`), so nested merge stays possible later.
+
+## PR review pipeline (hard)
+
+Before `gh pr create`:
+
+1. Author self-review (correctness, tests, scope, security).
+2. Adversarial review by a **different model** (author model must not review itself).
+3. Fix blocking findings, then create the PR.
+
+After the PR exists:
+
+4. Run **external Codex CLI** (`codex review`). The author is not the official reviewer.
+5. Do not second-guess Codex. Track the verdict only.
+6. On APPROVE: merge per Codex (still no author `gh pr review --approve`).
+7. On REQUEST_CHANGES: apply the requested fixes, push, then Codex Web re-review. Repeat until APPROVE.
+
+Forbidden: author-account approve; merge without external APPROVE; ignore REQUEST_CHANGES.

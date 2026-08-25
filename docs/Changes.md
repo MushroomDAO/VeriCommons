@@ -1,5 +1,14 @@
 # Changes
 
+## 0.1.13 — 2026-08-25
+
+- Review fixes: bind remote `VerifiedEvidence` to the sent `RawProof`; recover KMS signature against `issuerAddress`; sign fallback `verifierSet` before returning the ticket; verifier listens on `127.0.0.1` and requires `VERIFIER_TOKEN`.
+- T1.1 checkbox reverted: client exists, live AirAccount round-trip is not yet proven.
+
+Possible impact: `HttpVerifier` now requires `token`. Verifier process requires `VERIFIER_TOKEN` and defaults to loopback.
+
+---
+
 ## 0.1.12 — 2026-08-25
 
 - T1.1: `@vericommons/kms` signs EvidenceTicket via AirAccount online KMS (`POST /kms/SignTypedData`, `x-api-key` + optional agent JWT). Kernel `TicketSigner` — no raw issuer key on disk.

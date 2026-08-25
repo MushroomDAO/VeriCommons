@@ -34,8 +34,15 @@ export class TicketIssuer implements Issuer {
     if (verified.brand !== "VerifiedEvidence") {
       throw new KernelError("NOT_VERIFIED", "issue() only accepts VerifiedEvidence from verify()");
     }
+    const resolved: VerifiedEvidence = {
+      ...verified,
+      proof: {
+        ...verified.proof,
+        verifierSet: verified.proof.verifierSet || this.verifierSet,
+      },
+    };
     const issuer = await this.signer.getAddress();
-    const value = ticketTypedValue(verified);
+    const value = ticketTypedValue(resolved);
     const signature = await this.signer.signTypedData(
       {
         name: EIP712_NAME,
@@ -46,13 +53,9 @@ export class TicketIssuer implements Issuer {
       EVIDENCE_TICKET_TYPES,
       value,
     );
-    const { brand: _brand, ...body } = verified;
+    const { brand: _brand, ...body } = resolved;
     return {
       ...body,
-      proof: {
-        ...body.proof,
-        verifierSet: verified.proof.verifierSet || this.verifierSet,
-      },
       issuer,
       signature,
     };
