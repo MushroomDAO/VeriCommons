@@ -1,5 +1,14 @@
 # Changes
 
+## 0.1.9 — 2026-08-25
+
+- Fixed `docs/architecture-dvt.svg` (invalid control characters broke preview). README now embeds the image.
+- README unique value: backend-agnostic customizable `issue()`, open-source prove/verify, verify as ≥3-node DVT.
+
+Possible impact: documentation only.
+
+---
+
 ## 0.1.8 — 2026-08-25
 
 - Implemented P3 ERC-4337 adapters: `EvidenceTicketValidator` (UserOp allowed iff our ticket is valid), `EvidenceRegistry`, EIP-1271 `SubjectBinder`.

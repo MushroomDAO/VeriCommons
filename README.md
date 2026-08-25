@@ -1,39 +1,27 @@
 # VeriCommons
 
-Backend-agnostic **prove → verify → issue** kernel, plus optional packs for our Task Plaza, credits, and ERC-4337 accounts.
+**Backend-agnostic `issue()` of a credential you can customize, on top of open-source prove/verify whose default verify is a decentralized network of at least three verifier nodes (2-of-3, then one ticket).** That is the unique value: we are the issuer, engines are pluggable, and verify is not a single company's check.
 
-We ship **VeriCore** for that plaza. The kernel is a **public, composable component**: other apps can import it, plug their own provers and verifiers, and issue **their** credentials. We do not have to be the only issuer on the planet. We are the default issuer for our task ecosystem.
+We ship this kernel for our Task Plaza, and as a public component others can import.
+
+![Decentralized verify: three operators, one issue](docs/architecture-dvt.svg)
 
 ```
-Prover (ours or theirs)
-  → verify (ours, or trust their SDK)     // record verifierSet + trust.assumption
-    → issue()  a credential               // default: our EIP-712 Evidence ticket
+prove (ours or theirs) → verify (≥3 independent operators) → issue() your credential
 ```
 
-`issue()` is the product. Plaza, credits, and 4337 never parse zkPass / Reclaim blobs.
-
-**Today:** one operator runs `verify()` (honest centralized). **P5:** independent verifier operators, quorum, then one `issue()`. See [Ecosystem](docs/Ecosystem.md) and [DVT SVG](docs/architecture-dvt.svg).
-
-## Why this repo exists
-
-| Audience | What we are |
-| --- | --- |
-| Our stack | The middle: Task Plaza → **did they finish?** → credits / 4337 |
-| Other developers | A swap-in kernel: bring a prover, bring a verifier, mint a ticket |
-| Not this repo | Plaza UI, credit ledger, a full 4337 account, a zkTLS network |
-
-zkPass and zkEmail are useful **engines**, not the trust root. ZK does not mean decentralized verify.
+Plaza, credits, and 4337 only consume the ticket. They never parse zkPass / Reclaim blobs.
 
 ## Packages
 
 | Package | Role | Required to reuse the kernel? |
 | --- | --- | --- |
-| [`packages/kernel`](packages/kernel) | `prove` / `verify` / `issue`, schemas, trust labels | **This is the public core** |
+| [`packages/kernel`](packages/kernel) | `prove` / `verify` / `issue`, schemas, trust labels | **Public core** |
 | [`packages/task`](packages/task) | Bind ticket ↔ `taskId`, PASS / FAIL / PENDING, credit hook | No — plaza only |
 | [`packages/aa`](packages/aa) | Off-chain 4337 gate + EIP-1271 subject bind | No |
 | [`packages/contracts`](packages/contracts) | `EvidenceTicketValidator`, `EvidenceRegistry`, `SubjectBinder` | No |
 
-Default `issue()` profile: EIP-712 `EvidenceTicket` (`VeriCommons` / `0.1`). That profile is what plaza and 4337 consume. Another app can use the same kernel with **its own issuer key**, **its own schemas**, and later **its own credential profile** (for example a W3C VC). That last hook is designed; it is not a second wire format in P1–P3.
+Default ticket: EIP-712 `EvidenceTicket`. Another app uses the same kernel with **its issuer key**, **its schemas**, and later **its credential profile** (e.g. W3C VC).
 
 ## Core flow
 
@@ -61,38 +49,27 @@ flowchart LR
   I --> Other
 ```
 
-Immediate facts (GitHub star, public page, NFT hold) verify now. Delayed facts (WeChat-class) stay PENDING until an `attribution.qualified` ticket is issued. Same `issue()`, different proof type.
+Immediate facts verify now. Delayed facts stay PENDING until `attribution.qualified`. Same `issue()`.
 
 ## How other developers use this
 
-**1. Kernel only (public component)**  
-Import `@vericommons/kernel`. Register schemas. Use our Public Web / API / onchain backends, or add a `ProofBackend`. Call `prove` → `verify` → `issue` with **your** issuer signer. Downstream you write is yours.
+1. **Kernel only** — import `@vericommons/kernel`, your signer, your schemas.
+2. **Your issuer profile** — keep `verify()`; swap ticket types when you need VC / another EIP-712 name.
+3. **Our plaza** — `packages/task`; credits see `{ evidenceId, schema, subject, amount }` after PASS.
+4. **Vendor under the kernel** — their `verify()` → map → **your/our** `issue()`, with `trust.assumption`.
+5. **4337 adapter** — consume the ticket; do not verify zkTLS in a UserOp.
 
-**2. Kernel + your issuer profile**  
-Keep `verify()` as the gate. Swap `TicketIssuer` domain / types when you need a different credential (VC, another EIP-712 name). Do not fork plaza code for that. P1–P3 still only ship the VeriCommons ticket; the split is the point of the design.
+DVT deploy (three verifier hosts + one issuer): [Ecosystem](docs/Ecosystem.md).
 
-**3. VeriCore for the task ecosystem**  
-`packages/task` on top of the kernel. Plaza never talks to a vendor SDK. Credits only see `{ evidenceId, schema, subject, amount }` after PASS.
-
-**4. Vendor engines under the kernel**  
-Their SDK `verify()` → map claim → **our** `issue()` (or yours). Label `trust.assumption` (`VENDOR_ZKPASS`, …). You are trusting their verifier, not re-running their TLS.
-
-**5. 4337 adapter only**  
-Accounts consume the ticket (signature or `hasEvidence`). They must not verify zkTLS in a UserOp.
-
-## Decentralized verify (target)
-
-Three independent **verifier operators**, not three threads in one process. Each operator runs a verifier process (our binary or theirs). A **quorum** (for example 2-of-3) is required before **one** `issue()`. The issuer is a separate role. Detail, deployment, and “does P1–P3 already satisfy this?”: [docs/Ecosystem.md](docs/Ecosystem.md).
-
-## Status (do not merge phase PRs yourself)
+## Status
 
 | Phase | What | PR |
 | --- | --- | --- |
 | P1 | Kernel | on `main` |
-| P2 | Plaza / credits wrapper | open — review, do not self-merge |
-| P3 | 4337 consume + onchain prover | stacked on P2 |
+| P2 | Plaza / credits wrapper | open — do not self-merge |
+| P3 | 4337 + onchain prover | stacked on P2 |
 | P4 | Vendor adapters | not started |
-| P5 | Multi-verifier / DVT | not started; fields `verifierSet` + `trust.assumption` are the hook |
+| P5 | Run the ≥3-node verifier network | not started; `verifierSet` is the hook |
 
 ## Develop
 
@@ -102,9 +79,7 @@ pnpm test
 pnpm build
 ```
 
-Node 22+. Foundry for `packages/contracts`. Vendor clones (gitignored): `bash vendor/clone.sh`.
-
-- [Architecture](docs/Architecture.md) · [full stack SVG](docs/architecture-full.svg)
-- [Ecosystem / DVT](docs/Ecosystem.md) · [DVT SVG](docs/architecture-dvt.svg)
+- [Architecture](docs/Architecture.md) · [full stack](docs/architecture-full.svg)
+- [Ecosystem / DVT](docs/Ecosystem.md) · [DVT diagram](docs/architecture-dvt.svg)
 - [Milestones](docs/plan/README.md) · [Changes](docs/Changes.md)
-- [Solution](docs/Solution.md) (source notes — do not overwrite)
+- [Solution](docs/Solution.md) (do not overwrite)
