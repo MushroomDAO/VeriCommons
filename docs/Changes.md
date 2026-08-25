@@ -7,6 +7,7 @@
 - Codex review: catch malformed request targets (no unauthenticated crash); reject empty `verifierSet` / unknown trust labels; map non-object JSON error bodies to `KernelError`.
 - Codex round 2: bind remote verify to `hashRawProof(RawProof)`; require `source` and `proof.reference`.
 - Codex round 3: require schema-declared `trust.assumption`; keep `rawProofHash` on the HTTP envelope only, not on signed tickets.
+- Codex round 4: headless KMS signer requires agent JWT (no WebAuthn path).
 
 Possible impact: `HttpVerifier` now requires `token`. Verifier process requires `VERIFIER_TOKEN` and defaults to loopback.
 

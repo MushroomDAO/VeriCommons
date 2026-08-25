@@ -122,7 +122,7 @@ describe("AirAccount KMS signer", () => {
     expect(body.hdPath).toBe("m/44'/60'/0'/1/0");
   });
 
-  it("requires hdPath when using an agent JWT", () => {
+  it("requires hdPath with the agent JWT", () => {
     expect(
       () =>
         new AirAccountKmsSigner({
@@ -131,6 +131,21 @@ describe("AirAccount KMS signer", () => {
           keyId: "id",
           issuerAddress: Wallet.createRandom().address,
           agentJwt: "jwt",
+          hdPath: "",
+        }),
+    ).toThrow(KmsError);
+  });
+
+  it("requires an agent JWT for headless signing", () => {
+    expect(
+      () =>
+        new AirAccountKmsSigner({
+          url: "https://kms.aastar.io",
+          apiKey: "k",
+          keyId: "id",
+          issuerAddress: Wallet.createRandom().address,
+          hdPath: "m/44'/60'/0'/1/0",
+          agentJwt: "",
         }),
     ).toThrow(KmsError);
   });

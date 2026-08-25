@@ -3,7 +3,6 @@ import { verifyTypedData } from "ethers";
 import { KmsError } from "./errors.js";
 import { toKmsTypedData, type KmsSignTypedDataBody } from "./typed-data.js";
 
-const DEFAULT_OWNER_PATH = "m/44'/60'/0'/0/0";
 const DEFAULT_KMS_URL = "https://kms.aastar.io";
 
 export interface AirAccountKmsSignerOptions {
@@ -13,13 +12,10 @@ export interface AirAccountKmsSignerOptions {
   keyId: string;
   /** Address of the key at hdPath. DeriveAddress needs WebAuthn; pass it from config. */
   issuerAddress: string;
-  /**
-   * Owner root: m/44'/60'/0'/0/0.
-   * Agent JWT must use m/44'/60'/0'/1/{agentIndex} (KMS rejects anything else on JWT path).
-   */
-  hdPath?: string;
-  /** Automated issuer: create-agent-key once, then Bearer JWT. */
-  agentJwt?: string;
+  /** Agent path: m/44'/60'/0'/1/{agentIndex}. KMS rejects other paths on the JWT. */
+  hdPath: string;
+  /** Automated issuer: create-agent-key once, then Bearer JWT. Required; this signer has no WebAuthn. */
+  agentJwt: string;
   fetchImpl?: typeof fetch;
 }
 
@@ -29,14 +25,17 @@ export class AirAccountKmsSigner implements TicketSigner {
   private readonly keyId: string;
   private readonly issuerAddress: string;
   private readonly hdPath: string;
-  private readonly agentJwt?: string;
+  private readonly agentJwt: string;
   private readonly fetchImpl: typeof fetch;
 
   constructor(opts: AirAccountKmsSignerOptions) {
     if (!opts.url || !opts.apiKey || !opts.keyId || !opts.issuerAddress) {
       throw new KmsError("CONFIG", "url, apiKey, keyId, and issuerAddress are required");
     }
-    if (opts.agentJwt && !opts.hdPath) {
+    if (!opts.agentJwt) {
+      throw new KmsError("CONFIG", "agent JWT is required; this signer has no WebAuthn path");
+    }
+    if (!opts.hdPath) {
       throw new KmsError(
         "CONFIG",
         "hdPath is required with agent JWT (m/44'/60'/0'/1/{agentIndex})",
@@ -46,7 +45,7 @@ export class AirAccountKmsSigner implements TicketSigner {
     this.apiKey = opts.apiKey;
     this.keyId = opts.keyId;
     this.issuerAddress = opts.issuerAddress;
-    this.hdPath = opts.hdPath ?? DEFAULT_OWNER_PATH;
+    this.hdPath = opts.hdPath;
     this.agentJwt = opts.agentJwt;
     this.fetchImpl = opts.fetchImpl ?? fetch;
   }
@@ -124,8 +123,8 @@ export function airAccountSignerFromEnv(
     apiKey,
     keyId,
     issuerAddress,
-    hdPath: env.KMS_HD_PATH,
-    agentJwt: env.KMS_AGENT_JWT,
+    hdPath: required(env, "KMS_HD_PATH"),
+    agentJwt: required(env, "KMS_AGENT_JWT"),
     fetchImpl,
   });
 }
